@@ -49,23 +49,12 @@ public class JobDriver_PutInGenericPackForApparel : JobDriver
             Pawn actor = putInPack.actor;
             if (actor != null && apparel != null && comp != null)
             {
-                int numToTake = Math.Min(job.count, apparel.stackCount);
-                if (apparel.def.soundPickup != null)
-                    apparel.def.soundPickup.PlayOneShot(new TargetInfo(actor.Position, actor.Map));
-                // 使用 SplitOff 剥离物体
-                var thingToLoad = apparel.SplitOff(numToTake);
-
-                // 尝试存入
-                if (thingToLoad is Apparel apparelToLoad && comp.TryAdd(apparelToLoad, true))
-                    Messages.Message($"loading {thingToLoad.LabelCap} into {pack.LabelCap}",
+                int actuallyAdded = comp.TryLoadInto(apparel, job.count);
+                if (actuallyAdded > 0)
+                    Messages.Message($"loading {actuallyAdded} x {apparel.LabelNoCount} into {pack.LabelCap}",
                         MessageTypeDefOf.PositiveEvent);
                 else
-                {
-                    // 失败：将剥离出来的实例（thingToLoad）放回地面
-                    GenPlace.TryPlaceThing(thingToLoad, actor.Position, actor.Map, ThingPlaceMode.Near);
-                    Messages.Message("pack is full or unable to load item, dropping on the ground",
-                        MessageTypeDefOf.NegativeEvent);
-                }
+                    Messages.Message("pack is full or unable to load item", MessageTypeDefOf.RejectInput);
             }
         };
         yield return putInPack;

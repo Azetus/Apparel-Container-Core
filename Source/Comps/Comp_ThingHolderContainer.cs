@@ -1,6 +1,8 @@
 ﻿using ACC_ApparelContainerCore.Comps.Props;
 using RimWorld;
+using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace ACC_ApparelContainerCore.Comps;
 
@@ -16,6 +18,9 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
     public int ContainerCount => _innerContainer.Count;
 
     public bool AnyItem => _innerContainer.Count != 0;
+
+    public bool CanAcceptMore => ContainerCount < Props.storageCapacity;
+
 
     public Pawn? Wearer => (base.ParentHolder as Pawn_ApparelTracker)?.pawn;
 
@@ -48,14 +53,29 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
             nearPlaceValidator);
     }
 
-    public int TryAdd(T item, int count, bool canMergeWithExistingStacks = true)
+    public int TryLoadInto(T item, int count, bool canMergeWithExistingStacks = false)
     {
-        return _innerContainer.TryAdd(item, count, canMergeWithExistingStacks);
-    }
+        if (item == null || count <= 0)
+            return 0;
+        if (!CanAcceptMore)
+            return 0;
+        int numToTake = Mathf.Min(count, item.stackCount);
+        Thing thingToLoad = item.SplitOff(numToTake);
+        int actuallyAdded = _innerContainer.TryAdd(thingToLoad, numToTake, canMergeWithExistingStacks);
 
-    public bool TryAdd(T item, bool canMergeWithExistingStacks = true)
-    {
-        return _innerContainer.TryAdd(item, canMergeWithExistingStacks);
+        if (actuallyAdded > 0)
+        {
+            if (thingToLoad.def.soundPickup != null && Wearer != null)
+                thingToLoad.def.soundPickup.PlayOneShot(new TargetInfo(Wearer.Position, Wearer.Map));
+            Wearer?.MapHeld?.resourceCounter.UpdateResourceCounts();
+            return actuallyAdded;
+        }
+        else
+        {
+            if (thingToLoad != null&& Wearer != null && !thingToLoad.Destroyed)
+                GenPlace.TryPlaceThing(thingToLoad, Wearer.Position, Wearer.Map, ThingPlaceMode.Near);
+            return 0;
+        }
     }
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
