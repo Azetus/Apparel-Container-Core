@@ -116,18 +116,19 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
 
 
         var itemsOnMap = currentMap.listerThings.ThingsInGroup(ThingRequestGroup.Apparel)
+            .OfType<Apparel>()
             .Where(t => t != null && IsValidTargetToLoad(t));
 
 
-        var window = new Dialog_ItemSelect(itemsOnMap, ContainedThings, Props.storageCapacity, (loadList, unloadList) =>
+        var window = new Dialog_ItemSelect<Apparel>(itemsOnMap, ContainedThings, Props.storageCapacity, (loadList, unloadList) =>
         {
             // 1. 立即执行卸载 (逻辑上优先)
             foreach (var item in unloadList)
             {
-                TryDrop(item.thing as Apparel, parent.PositionHeld, currentMap, ThingPlaceMode.Near, item.count, out _);
+                TryDrop(item.thing, parent.PositionHeld, currentMap, ThingPlaceMode.Near, item.count, out _);
             }
 
-
+            // 2. 创建装载的 job
             foreach (var item in loadList)
             {
                 Job loadJob = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, item.thing, parent);

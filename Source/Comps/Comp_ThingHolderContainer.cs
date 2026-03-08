@@ -104,7 +104,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
             for (int i = InnerContainer.Count - 1; i >= 0; i--)
             {
                 if (InnerContainer[i] is { } thing)
-                    TryDrop(InnerContainer[i], dropPos, previousMap, ThingPlaceMode.Near, out var outThing);
+                    TryDrop(InnerContainer[i], dropPos, previousMap, ThingPlaceMode.Near, out _);
             }
         }
 

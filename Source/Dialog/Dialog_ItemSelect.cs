@@ -4,27 +4,27 @@ using Verse;
 
 namespace ACC_ApparelContainerCore.Dialog;
 
-public struct TransferRequest
+public struct TransferRequest<T>
 {
-    public Thing thing;
+    public T thing;
     public int count;
 }
 
-public class Dialog_ItemSelect : Window
+public class Dialog_ItemSelect<T> : Window where T : Thing
 {
-    private readonly Dictionary<Thing, int> transferCounts = new Dictionary<Thing, int>();
-    private readonly List<Thing> allItems; // 合并后的唯一物品列表
-    private readonly HashSet<Thing> initiallyInBag;
+    private readonly Dictionary<T, int> transferCounts = new Dictionary<T, int>();
+    private readonly List<T> allItems; // 合并后的唯一物品列表
+    private readonly HashSet<T> initiallyInBag;
 
-    private readonly Action<List<TransferRequest>, List<TransferRequest>> onConfirmed;
+    private readonly Action<List<TransferRequest<T>>, List<TransferRequest<T>>> onConfirmed;
     private readonly int maxCapacity;
     private string searchTerm = "";
     private Vector2 scrollPosition = Vector2.zero;
 
     public override Vector2 InitialSize => new Vector2(700f, 700f);
 
-    public Dialog_ItemSelect(IEnumerable<Thing> mapItems, IReadOnlyList<Thing> containerItems, int capacity,
-        Action<List<TransferRequest>, List<TransferRequest>> onConfirmed)
+    public Dialog_ItemSelect(IEnumerable<T> mapItems, IReadOnlyList<T> containerItems, int capacity,
+        Action<List<TransferRequest<T>>, List<TransferRequest<T>>> onConfirmed)
     {
         this.initiallyInBag = containerItems.ToHashSet();
         this.maxCapacity = capacity;
@@ -89,7 +89,7 @@ public class Dialog_ItemSelect : Window
         }
     }
 
-    private void DrawTransferRow(Rect rect, Thing t, ref int total)
+    private void DrawTransferRow(Rect rect, T t, ref int total)
     {
         Widgets.DrawHighlightIfMouseover(rect);
 
@@ -142,12 +142,12 @@ public class Dialog_ItemSelect : Window
 
     private void GenerateAndConfirm()
     {
-        List<TransferRequest> toLoad = new List<TransferRequest>();
-        List<TransferRequest> toUnload = new List<TransferRequest>();
+        List<TransferRequest<T>> toLoad = new List<TransferRequest<T>>();
+        List<TransferRequest<T>> toUnload = new List<TransferRequest<T>>();
 
         foreach (var kvp in transferCounts)
         {
-            Thing t = kvp.Key;
+            T t = kvp.Key;
             int targetCount = kvp.Value;
             bool wasInBag = initiallyInBag.Contains(t);
 
@@ -156,7 +156,7 @@ public class Dialog_ItemSelect : Window
                 // 如果原本在包里，但现在的目标数量比原来少 -> 卸载
                 if (targetCount < t.stackCount)
                 {
-                    toUnload.Add(new TransferRequest { thing = t, count = t.stackCount - targetCount });
+                    toUnload.Add(new TransferRequest<T> { thing = t, count = t.stackCount - targetCount });
                 }
             }
             else
@@ -164,7 +164,7 @@ public class Dialog_ItemSelect : Window
                 // 如果原本在地上，现在的目标数量大于 0 -> 装载
                 if (targetCount > 0)
                 {
-                    toLoad.Add(new TransferRequest { thing = t, count = targetCount });
+                    toLoad.Add(new TransferRequest<T> { thing = t, count = targetCount });
                 }
             }
         }
