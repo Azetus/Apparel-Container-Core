@@ -1,60 +1,85 @@
 ﻿using RimWorld;
 using Verse;
 
-namespace ACC_ApparelContainerCore.Things;
+namespace ACC_ApparelContainerCore.Comps;
 
-public abstract class Apparel_ThingHolderContainer<T> : Apparel, IThingHolder where T : Thing
+public abstract class Comp_ThingHolderContainer<T> : ThingComp, IThingHolder where T : Thing
 {
-    private ThingOwner<T> InnerContainer;
+    private ThingOwner<T> innerContainer;
 
-    public override void PostMake()
+    public List<T> InnerContainer => innerContainer.InnerListForReading;
+
+    public int ContainerCount => innerContainer.Count;
+
+    public bool AnyItem => innerContainer.Count != 0;
+
+    public Pawn? Wearer => (base.ParentHolder as Pawn_ApparelTracker)?.pawn;
+
+    public override void PostPostMake()
     {
-        base.PostMake();
-        if (InnerContainer == null)
+        base.PostPostMake();
+        if (innerContainer == null)
         {
-            InnerContainer = new ThingOwner<T>(this, false, LookMode.Deep);
+            innerContainer = new ThingOwner<T>(this, false, LookMode.Deep);
         }
     }
 
-    public ThingOwner GetDirectlyHeldThings() => InnerContainer;
-
-    public override void ExposeData()
-    {
-        base.ExposeData();
-        Scribe_Deep.Look(ref InnerContainer, "InnerContainer", this);
-    }
+    public ThingOwner GetDirectlyHeldThings() => innerContainer;
 
     public void GetChildHolders(List<IThingHolder> outChildren)
     {
         ThingOwnerUtility.AppendThingHoldersFromThings(outChildren, GetDirectlyHeldThings());
     }
 
-    public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
+    public bool TryDrop(
+        T thing,
+        IntVec3 dropLoc,
+        Map map,
+        ThingPlaceMode mode,
+        out T lastResultingThing,
+        Action<T, int> placedAction = null,
+        Predicate<IntVec3> nearPlaceValidator = null)
+    {
+        return innerContainer.TryDrop(thing, dropLoc, map, mode, out lastResultingThing, placedAction,
+            nearPlaceValidator);
+    }
+
+    public int TryAdd(T item, int count, bool canMergeWithExistingStacks = true)
+    {
+        return innerContainer.TryAdd(item, count, canMergeWithExistingStacks);
+    }
+
+    public bool TryAdd(T item, bool canMergeWithExistingStacks = true)
+    {
+        return innerContainer.TryAdd(item, canMergeWithExistingStacks);
+    }
+
+    public override void PostDestroy(DestroyMode mode, Map previousMap)
     {
         // 如果在地图上，则把东西全部吐出来
-        if (this.MapHeld != null)
+        if (previousMap != null)
         {
             // 倒序遍历移除物品
             for (int i = InnerContainer.Count - 1; i >= 0; i--)
             {
-                InnerContainer.TryDrop(InnerContainer[i], PositionHeld, MapHeld, ThingPlaceMode.Near, out var outThing);
+                TryDrop(InnerContainer[i], Wearer.PositionHeld, previousMap, ThingPlaceMode.Near, out var outThing);
             }
         }
 
-        base.Destroy(mode);
+        base.PostDestroy(mode, previousMap);
     }
 
-    public override IEnumerable<Gizmo> GetWornGizmos()
+    public override IEnumerable<Gizmo> CompGetWornGizmosExtra()
     {
-        foreach (var g in base.GetWornGizmos()) yield return g;
+        foreach (var g in base.CompGetWornGizmosExtra()) yield return g;
         foreach (var containerGizmos in GetContainerGizmos()) yield return containerGizmos;
-        foreach (var extraGizmo in GetExtraGizmos()) yield return extraGizmo;
+        foreach (var extraGizmo in GetExtraGizmosInContainer()) yield return extraGizmo;
     }
 
     protected abstract IEnumerable<Gizmo> GetContainerGizmos();
-    
+
     // ----- 代理容器内物品的 Gizmo -----
-    protected abstract IEnumerable<Gizmo> GetExtraGizmos();
+    protected abstract IEnumerable<Gizmo> GetExtraGizmosInContainer();
 
     /// <summary>
     /// 注意：RimWorld 的 IThingHolder 接口并非类型安全。
@@ -116,5 +141,12 @@ public abstract class Apparel_ThingHolderContainer<T> : Apparel, IThingHolder wh
         if (cmd.hotKey == KeyBindingDefOf.Command_ItemForbid && cmd.icon == TexCommand.ForbidOff)
             return false;
         return true;
+    }
+
+
+    public override void PostExposeData()
+    {
+        base.PostExposeData();
+        Scribe_Deep.Look(ref innerContainer, "ACC_InnerContainer", this);
     }
 }
