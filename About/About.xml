@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+    <name>Apparel Container Core</name>
+    <author>Aliza</author>
+    <packageId>Aliza.ApparelContainerCore</packageId>
+    <supportedVersions>
+        <li>1.6</li>
+    </supportedVersions>
+    <loadAfter>
+        <li>Ludeon.RimWorld</li>
+    </loadAfter>
+    <description>Apparel Container Core</description>
+</ModMetaData>
