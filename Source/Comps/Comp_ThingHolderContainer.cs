@@ -72,7 +72,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
         }
         else
         {
-            if (thingToLoad != null&& Wearer != null && !thingToLoad.Destroyed)
+            if (thingToLoad != null && Wearer != null && !thingToLoad.Destroyed)
                 GenPlace.TryPlaceThing(thingToLoad, Wearer.Position, Wearer.Map, ThingPlaceMode.Near);
             return 0;
         }
@@ -95,6 +95,29 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
         base.PostDestroy(mode, previousMap);
     }
 
+    /// <summary>
+    /// 核心过滤逻辑：判断一个物品是否符合容器交互要求
+    /// </summary>
+    protected virtual bool IsValidTargetToLoad(Thing thingToLoad)
+    {
+        // 基础类别过滤：必须是 Item 类别
+        if (thingToLoad.def.category != ThingCategory.Item) return false;
+        // 状态检查：必须在地图上，且未被销毁
+        if (!thingToLoad.Spawned || thingToLoad.Destroyed) return false;
+        // 权限检查：是否被禁用了，或者正在被其他人交互
+        if (thingToLoad.IsForbidden(Wearer) || thingToLoad.IsBurning()) return false;
+        // 因为在调用comp时设置了Owner为对应Tracker，item的类型必须是T
+        if (thingToLoad is not T) return false;
+        // TODO (预留) 白名单/黑名单逻辑
+
+        // 不许套娃
+        if (thingToLoad == this.parent) return false;
+        if (thingToLoad is IThingHolder) return false;
+
+        return true;
+    }
+
+    // --- 处理Gizmo ---
     public override IEnumerable<Gizmo> CompGetWornGizmosExtra()
     {
         foreach (var g in base.CompGetWornGizmosExtra()) yield return g;
