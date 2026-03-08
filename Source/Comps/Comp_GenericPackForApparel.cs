@@ -124,14 +124,14 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
             // 1. 立即执行卸载 (逻辑上优先)
             foreach (var item in unloadList)
             {
-                TryDrop(item as Apparel, parent.PositionHeld, currentMap, ThingPlaceMode.Near, out _);
+                TryDrop(item.thing as Apparel, parent.PositionHeld, currentMap, ThingPlaceMode.Near, item.count, out _);
             }
 
 
             foreach (var item in loadList)
             {
-                Job loadJob = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, item, parent);
-                loadJob.count = 1;
+                Job loadJob = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, item.thing, parent);
+                loadJob.count = item.count < 1 ? 1 : item.count;
 
                 Wearer.jobs.jobQueue.EnqueueFirst(loadJob);
             }

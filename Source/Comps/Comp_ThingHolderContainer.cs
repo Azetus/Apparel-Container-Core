@@ -55,6 +55,20 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
             nearPlaceValidator);
     }
 
+    public bool TryDrop(
+        Thing thing,
+        IntVec3 dropLoc,
+        Map map,
+        ThingPlaceMode mode,
+        int count,
+        out T resultingThing,
+        Action<T, int> placedAction = null,
+        Predicate<IntVec3> nearPlaceValidator = null)
+    {
+        return _innerContainer.TryDrop(thing, dropLoc, map, mode, count, out resultingThing, placedAction,
+            nearPlaceValidator);
+    }
+
     public int TryLoadInto(T item, int count, bool canMergeWithExistingStacks = false)
     {
         if (item == null || count <= 0)
@@ -115,7 +129,8 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
         // 不许套娃
         if (thingToLoad == this.parent) return false;
         if (thingToLoad is IThingHolder) return false;
-        if (thingToLoad is ThingWithComps thingWithCompsToLoad && thingWithCompsToLoad.AllComps.Any(c => c is IThingHolder)) return false;
+        if (thingToLoad is ThingWithComps thingWithCompsToLoad &&
+            thingWithCompsToLoad.AllComps.Any(c => c is IThingHolder)) return false;
         return true;
     }
 
