@@ -115,7 +115,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
         // 不许套娃
         if (thingToLoad == this.parent) return false;
         if (thingToLoad is IThingHolder) return false;
-
+        if (thingToLoad is ThingWithComps thingWithCompsToLoad && thingWithCompsToLoad.AllComps.Any(c => c is IThingHolder)) return false;
         return true;
     }
 
