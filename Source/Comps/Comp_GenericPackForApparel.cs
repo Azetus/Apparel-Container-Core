@@ -1,5 +1,6 @@
 ﻿using ACC_ApparelContainerCore.Comps.Props;
 using ACC_ApparelContainerCore.DefOfs;
+using ACC_ApparelContainerCore.Dialog;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -49,8 +50,10 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
     {
         List<FloatMenuOption> options = new List<FloatMenuOption>();
 
+        options.Add(new FloatMenuOption("open menu", OpenPicker));
         // 装载逻辑
         if (CanAcceptMore)
+        {
             options.Add(new FloatMenuOption("loading item from Map...", () =>
             {
                 Find.Targeter.BeginTargeting(GetTargetingParameters(), target =>
@@ -65,6 +68,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
                     }
                 });
             }));
+        }
 
         // 卸载逻辑
         options.Add(new FloatMenuOption("unloading item...", () =>
@@ -101,5 +105,40 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
                 return IsValidTargetToLoad(thing);
             }
         };
+    }
+
+    // 物品选择器
+    public void OpenPicker()
+    {
+        Map currentMap = parent.MapHeld;
+
+        if (currentMap == null || Wearer == null) return;
+
+
+        var itemsOnMap = currentMap.listerThings.ThingsInGroup(ThingRequestGroup.Apparel)
+            .Where(t => t != null && IsValidTargetToLoad(t));
+
+
+        var window = new Dialog_ItemSelect(itemsOnMap, ContainedThings, Props.storageCapacity, (loadList, unloadList) =>
+        {
+            // 1. 立即执行卸载 (逻辑上优先)
+            foreach (var item in unloadList)
+            {
+                TryDrop(item as Apparel, parent.PositionHeld, currentMap, ThingPlaceMode.Near, out _);
+            }
+
+
+            foreach (var item in loadList)
+            {
+                Job loadJob = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, item, parent);
+                loadJob.count = 1;
+
+                Wearer.jobs.jobQueue.EnqueueFirst(loadJob);
+            }
+
+            Wearer.jobs.EndCurrentJob(JobCondition.InterruptForced);
+        });
+
+        Find.WindowStack.Add(window);
     }
 }

@@ -13,7 +13,9 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
     private ThingOwner<T> _innerContainer;
     public TP Props => (TP)this.props;
 
-    public List<T> InnerContainer => _innerContainer.InnerListForReading;
+    protected List<T> InnerContainer => _innerContainer.InnerListForReading;
+
+    public IReadOnlyList<T> ContainedThings => _innerContainer.InnerListForReading;
 
     public int ContainerCount => _innerContainer.Count;
 
