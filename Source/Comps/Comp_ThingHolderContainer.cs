@@ -8,27 +8,27 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
     where T : Thing
     where TP : CompProperties_ThingHolderContainer
 {
-    private ThingOwner<T> innerContainer;
+    private ThingOwner<T> _innerContainer;
     public TP Props => (TP)this.props;
-    
-    public List<T> InnerContainer => innerContainer.InnerListForReading;
 
-    public int ContainerCount => innerContainer.Count;
+    public List<T> InnerContainer => _innerContainer.InnerListForReading;
 
-    public bool AnyItem => innerContainer.Count != 0;
+    public int ContainerCount => _innerContainer.Count;
+
+    public bool AnyItem => _innerContainer.Count != 0;
 
     public Pawn? Wearer => (base.ParentHolder as Pawn_ApparelTracker)?.pawn;
 
     public override void PostPostMake()
     {
         base.PostPostMake();
-        if (innerContainer == null)
+        if (_innerContainer == null)
         {
-            innerContainer = new ThingOwner<T>(this, false, LookMode.Deep);
+            _innerContainer = new ThingOwner<T>(this, false, LookMode.Deep);
         }
     }
 
-    public ThingOwner GetDirectlyHeldThings() => innerContainer;
+    public ThingOwner GetDirectlyHeldThings() => _innerContainer;
 
     public void GetChildHolders(List<IThingHolder> outChildren)
     {
@@ -41,21 +41,21 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
         Map map,
         ThingPlaceMode mode,
         out T lastResultingThing,
-        Action<T, int> placedAction = null,
-        Predicate<IntVec3> nearPlaceValidator = null)
+        Action<T, int>? placedAction = null,
+        Predicate<IntVec3>? nearPlaceValidator = null)
     {
-        return innerContainer.TryDrop(thing, dropLoc, map, mode, out lastResultingThing, placedAction,
+        return _innerContainer.TryDrop(thing, dropLoc, map, mode, out lastResultingThing, placedAction,
             nearPlaceValidator);
     }
 
     public int TryAdd(T item, int count, bool canMergeWithExistingStacks = true)
     {
-        return innerContainer.TryAdd(item, count, canMergeWithExistingStacks);
+        return _innerContainer.TryAdd(item, count, canMergeWithExistingStacks);
     }
 
     public bool TryAdd(T item, bool canMergeWithExistingStacks = true)
     {
-        return innerContainer.TryAdd(item, canMergeWithExistingStacks);
+        return _innerContainer.TryAdd(item, canMergeWithExistingStacks);
     }
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
@@ -63,10 +63,12 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
         // 如果在地图上，则把东西全部吐出来
         if (previousMap != null)
         {
+            IntVec3 dropPos = Wearer?.PositionHeld ?? parent.PositionHeld;
             // 倒序遍历移除物品
             for (int i = InnerContainer.Count - 1; i >= 0; i--)
             {
-                TryDrop(InnerContainer[i], Wearer.PositionHeld, previousMap, ThingPlaceMode.Near, out var outThing);
+                if (InnerContainer[i] is { } thing)
+                    TryDrop(InnerContainer[i], dropPos, previousMap, ThingPlaceMode.Near, out var outThing);
             }
         }
 
@@ -151,6 +153,6 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
     public override void PostExposeData()
     {
         base.PostExposeData();
-        Scribe_Deep.Look(ref innerContainer, "ACC_InnerContainer", this);
+        Scribe_Deep.Look(ref _innerContainer, "ACC_InnerContainer", this);
     }
 }
