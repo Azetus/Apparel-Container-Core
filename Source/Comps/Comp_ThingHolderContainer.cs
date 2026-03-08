@@ -1,12 +1,16 @@
-﻿using RimWorld;
+﻿using ACC_ApparelContainerCore.Comps.Props;
+using RimWorld;
 using Verse;
 
 namespace ACC_ApparelContainerCore.Comps;
 
-public abstract class Comp_ThingHolderContainer<T> : ThingComp, IThingHolder where T : Thing
+public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
+    where T : Thing
+    where TP : CompProperties_ThingHolderContainer
 {
     private ThingOwner<T> innerContainer;
-
+    public TP Props => (TP)this.props;
+    
     public List<T> InnerContainer => innerContainer.InnerListForReading;
 
     public int ContainerCount => innerContainer.Count;

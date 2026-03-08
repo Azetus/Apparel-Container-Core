@@ -1,11 +1,12 @@
-﻿using ACC_ApparelContainerCore.DefOfs;
+﻿using ACC_ApparelContainerCore.Comps.Props;
+using ACC_ApparelContainerCore.DefOfs;
 using RimWorld;
 using Verse;
 using Verse.AI;
 
 namespace ACC_ApparelContainerCore.Comps;
 
-public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel>
+public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, CompProperties_GenericPackForApparel>
 {
     protected override IEnumerable<Gizmo> GetContainerGizmos()
     {
@@ -29,7 +30,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel>
             {
                 // 重定向 Owner
                 SetOwner(subItem.holdingOwner, trueTracker);
-                
+
                 int currentIndex = itemCounter++;
 
                 foreach (ThingComp comp in twc.AllComps)
@@ -43,7 +44,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel>
             }
         }
     }
-    
+
     private void OpenManagementMenu()
     {
         List<FloatMenuOption> options = new List<FloatMenuOption>();
@@ -82,7 +83,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel>
 
         Find.WindowStack.Add(new FloatMenu(options));
     }
-    
+
     private TargetingParameters GetTargetingParameters()
     {
         return new TargetingParameters
@@ -107,11 +108,11 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel>
 
                 // TODO (预留) 白名单/黑名单逻辑
                 // 应该改成白名单机制，
-                
+
                 // 不许套娃
                 if (thing == this.parent) return false;
                 if (thing is IThingHolder) return false;
-                
+
                 return true;
             }
         };
