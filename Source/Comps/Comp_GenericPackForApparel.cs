@@ -10,14 +10,6 @@ namespace ACC_ApparelContainerCore.Comps;
 
 public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, CompProperties_GenericPackForApparel>
 {
-    private static bool IsFunctionalUtility(Thing thing)
-    {
-        if (thing is not Apparel apparel) return false;
-        if (IsThingDefHasVerb(thing)) return true;
-        if (IsThingHasFunctionalComp(apparel)) return true;
-        return false;
-    }
-
     public override bool IsValidTargetToLoad(Thing thingToLoad)
     {
         if (!IsValidTargetToLoadBase(thingToLoad)) return false;

@@ -1,4 +1,5 @@
 ﻿using ACC_ApparelContainerCore.Comps.Props;
+using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -6,7 +7,7 @@ using Verse.Sound;
 
 namespace ACC_ApparelContainerCore.Comps;
 
-public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
+public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderContainerBase, IThingHolder
     where T : Thing
     where TP : CompProperties_ThingHolderContainer
 {
@@ -122,7 +123,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
         if (thingToLoad.IsForbidden(Wearer)) return false;
         // 不许套娃
         if (thingToLoad == this.parent) return false;
-        return true;
+        return IsFunctionalUtility(thingToLoad);
     }
 
     /// <summary>
@@ -142,10 +143,6 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
         if (!thingToLoad.Spawned || thingToLoad.Destroyed) return false;
         // 是否在燃烧
         if (thingToLoad.IsBurning()) return false;
-        // 权限检查：是否被禁用
-        // NOTE: IsForbidden(this Thing t, Pawn pawn) 对于征召状态的Pawn有特殊处理，是否禁用还是交由调用者来判断
-        // if (thingToLoad.IsForbidden(Faction.OfPlayer)) return false;
-
         // 因为在调用comp时设置了Owner为对应Tracker，item的类型必须是V
         if (thingToLoad is not T) return false;
         // 不许套娃
