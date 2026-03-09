@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <WorkGiverDef>
+        <defName>ACC_WorkGiver_PutInGenericPackForApparel</defName>
+        <label>Put into pack</label>
+        <giverClass>ACC_ApparelContainerCore.WorkGivers.WorkGiver_PutInGenericPackForApparel</giverClass>
+        <workType>Hauling</workType>
+        <priorityInType>110</priorityInType>
+        <verb>loading into pack</verb>
+        <gerund>loading item</gerund>
+        <canBeDoneWhileDrafted>true</canBeDoneWhileDrafted>
+        <requiredCapacities>
+            <li>Manipulation</li>
+        </requiredCapacities>
+    </WorkGiverDef>
+</Defs>
