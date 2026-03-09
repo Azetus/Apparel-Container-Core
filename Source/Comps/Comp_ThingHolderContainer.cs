@@ -30,9 +30,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
     {
         base.PostPostMake();
         if (_innerContainer == null)
-        {
             _innerContainer = new ThingOwner<T>(this, false, LookMode.Deep);
-        }
     }
 
     public ThingOwner GetDirectlyHeldThings() => _innerContainer;
@@ -94,20 +92,24 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
         }
     }
 
-    public override void PostDestroy(DestroyMode mode, Map previousMap)
+    public void TryDropAll(Map map)
     {
         // 如果在地图上，则把东西全部吐出来
-        if (previousMap != null)
+        if (map != null)
         {
             IntVec3 dropPos = Wearer?.PositionHeld ?? parent.PositionHeld;
             // 倒序遍历移除物品
             for (int i = InnerContainer.Count - 1; i >= 0; i--)
             {
                 if (InnerContainer[i] is { } thing)
-                    TryDrop(InnerContainer[i], dropPos, previousMap, ThingPlaceMode.Near, out _);
+                    TryDrop(InnerContainer[i], dropPos, map, ThingPlaceMode.Near, out _);
             }
         }
+    }
 
+    public override void PostDestroy(DestroyMode mode, Map previousMap)
+    {
+        TryDropAll(previousMap);
         base.PostDestroy(mode, previousMap);
     }
 
@@ -116,18 +118,34 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
     /// </summary>
     protected virtual bool IsValidTargetToLoad(Thing thingToLoad)
     {
+        if (!IsValidTargetToLoadBase(thingToLoad)) return false;
+        if (thingToLoad.IsForbidden(Wearer)) return false;
+        // 不许套娃
+        if (thingToLoad == this.parent) return false;
+        return true;
+    }
+
+    /// <summary>
+    /// IsForbidden(this Thing t, Pawn pawn) 对于征召状态的Pawn有特殊处理，是否禁用还是交由调用者来判断
+    /// </summary>
+    /// <remarks>
+    /// IsForbidden(this Thing t, Pawn pawn) contains special logic for drafted Pawns; the final determination of the forbidden state is deferred to the caller.
+    /// </remarks>
+    public static bool IsValidTargetToLoadBase(Thing thingToLoad)
+    {
         // 基础类别过滤：必须是 Item 类别
         if (thingToLoad.def.category != ThingCategory.Item) return false;
         // 状态检查：必须在地图上，且未被销毁
         if (!thingToLoad.Spawned || thingToLoad.Destroyed) return false;
-        // 权限检查：是否被禁用了，或者正在被其他人交互
-        if (thingToLoad.IsForbidden(Wearer) || thingToLoad.IsBurning()) return false;
-        // 因为在调用comp时设置了Owner为对应Tracker，item的类型必须是T
-        if (thingToLoad is not T) return false;
-        // TODO (预留) 白名单/黑名单逻辑
+        // 是否在燃烧
+        if (thingToLoad.IsBurning()) return false;
+        // 权限检查：是否被禁用
+        // NOTE: IsForbidden(this Thing t, Pawn pawn) 对于征召状态的Pawn有特殊处理，是否禁用还是交由调用者来判断
+        // if (thingToLoad.IsForbidden(Faction.OfPlayer)) return false;
 
+        // 因为在调用comp时设置了Owner为对应Tracker，item的类型必须是V
+        if (thingToLoad is not T) return false;
         // 不许套娃
-        if (thingToLoad == this.parent) return false;
         if (thingToLoad is IThingHolder) return false;
         if (thingToLoad is ThingWithComps thingWithCompsToLoad &&
             thingWithCompsToLoad.AllComps.Any(c => c is IThingHolder)) return false;

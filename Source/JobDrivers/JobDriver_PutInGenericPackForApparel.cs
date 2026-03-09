@@ -2,7 +2,7 @@
 using RimWorld;
 using Verse;
 using Verse.AI;
-using Verse.Sound;
+
 
 namespace ACC_ApparelContainerCore.JobDrivers;
 
@@ -38,7 +38,8 @@ public class JobDriver_PutInGenericPackForApparel : JobDriver
 
         if (job.count <= 0)
             job.count = 1;
-
+        
+        // TODO 这里的 TargetThing 类型校验可能要改一下？
         if (TargetThing is not Apparel apparel || TargetPack is not ThingWithComps pack ||
             pack.TryGetComp<Comp_GenericPackForApparel>() is not Comp_GenericPackForApparel comp)
             yield break;
