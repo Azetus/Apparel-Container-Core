@@ -6,9 +6,9 @@ namespace ACC_ApparelContainerCore.ACC_Utility;
 public static class UtilityChecker
 {
     // 判断下CompUsable和CompRechargeable基本上就能满足要求了
-    public static bool IsApparelHasCompUsableOrRechargeable(ThingWithComps twc)
+    public static bool IsThingHasFunctionalComp(ThingWithComps twc)
     {
-        return twc.HasComp<CompRechargeable>() || twc.HasComp<CompUsable>();
+        return twc.HasComp<CompUsable>() || twc.HasComp<CompApparelReloadable>() || twc.HasComp<CompRechargeable>() ;
     }
 
     public static bool IsThingDefHasVerb(Thing thing)
