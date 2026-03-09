@@ -51,25 +51,6 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
         List<FloatMenuOption> options = new List<FloatMenuOption>();
 
         options.Add(new FloatMenuOption("open menu", OpenPicker));
-        // 装载逻辑
-        if (CanAcceptMore)
-        {
-            options.Add(new FloatMenuOption("loading item from Map...", () =>
-            {
-                Find.Targeter.BeginTargeting(GetTargetingParameters(), target =>
-                {
-                    if (target.HasThing && Wearer != null)
-                    {
-                        // 注意：JobDef 需确保能处理这个 parent (ThingWithComps)
-                        Job job = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, target.Thing,
-                            parent);
-                        job.count = 1;
-                        Wearer.jobs.TryTakeOrderedJob(job);
-                    }
-                });
-            }));
-        }
-
         // 卸载逻辑
         options.Add(new FloatMenuOption("unloading item...", () =>
         {
