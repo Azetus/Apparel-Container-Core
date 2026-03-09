@@ -40,4 +40,10 @@ public static class UtilityChecker
     {
         return twc.HasComp<CompRechargeable>() || twc.HasComp<CompUsable>();
     }
+
+    public static bool IsThingDefHasVerb(Thing thing)
+    {
+        ThingDef def = thing.def;
+        return !def.Verbs.NullOrEmpty();
+    }
 }
