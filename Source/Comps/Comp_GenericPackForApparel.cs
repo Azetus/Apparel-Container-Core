@@ -15,7 +15,6 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
         if (thing is not Apparel apparel) return false;
         if (IsThingDefHasVerb(thing)) return true;
         if (IsApparelHasCompUsableOrRechargeable(apparel)) return true;
-        if (IsFunctionalThing(thing)) return true;
         return false;
     }
 
