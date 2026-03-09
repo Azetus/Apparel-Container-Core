@@ -1,6 +1,7 @@
 ﻿using ACC_ApparelContainerCore.Comps.Props;
 using ACC_ApparelContainerCore.DefOfs;
 using ACC_ApparelContainerCore.Dialog;
+using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -9,6 +10,26 @@ namespace ACC_ApparelContainerCore.Comps;
 
 public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, CompProperties_GenericPackForApparel>
 {
+    private static bool IsFunctionalUtility(Thing thing)
+    {
+        if (thing is not Apparel apparel) return false;
+        ThingDef def = apparel.def;
+        if (!def.Verbs.NullOrEmpty()) return true;
+        if (IsApparelHasCompUsableOrRechargeable(apparel)) return true;
+        if (IsFunctionalThing(thing)) return true;
+        return false;
+    }
+
+    public override bool IsValidTargetToLoad(Thing thingToLoad)
+    {
+        if (!IsValidTargetToLoadBase(thingToLoad)) return false;
+        if (thingToLoad.IsForbidden(Faction.OfPlayer) || thingToLoad.IsForbidden(Wearer)) return false;
+        // 不许套娃
+        if (thingToLoad == this.parent) return false;
+        return IsFunctionalUtility(thingToLoad);
+    }
+
+
     protected override IEnumerable<Gizmo> GetContainerGizmos()
     {
         yield return new Command_Action
@@ -19,6 +40,9 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
         };
     }
 
+    /**
+     * 在这里代理容器内物品的Gizmo，在代理之前需要调用 SetOwner
+     */
     protected override IEnumerable<Gizmo> GetExtraGizmosInContainer()
     {
         // 转发子物品的 Gizmo
@@ -30,7 +54,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
             if (subItem is ThingWithComps twc)
             {
                 // 重定向 Owner
-                SetOwner(subItem.holdingOwner, trueTracker);
+                SetOwner(twc.holdingOwner, trueTracker);
 
                 int currentIndex = itemCounter++;
 
@@ -71,25 +95,9 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
         Find.WindowStack.Add(new FloatMenu(options));
     }
 
-    private TargetingParameters GetTargetingParameters()
-    {
-        return new TargetingParameters
-        {
-            canTargetItems = true,
-            canTargetPawns = false,
-            canTargetBuildings = false,
-            mapObjectTargetsMustBeAutoAttackable = false,
-            validator = (TargetInfo t) =>
-            {
-                if (!t.HasThing) return false;
-                var thing = t.Thing;
-                return IsValidTargetToLoad(thing);
-            }
-        };
-    }
 
     // 物品选择器
-    public void OpenPicker()
+    private void OpenPicker()
     {
         Map currentMap = parent.MapHeld;
 
@@ -101,25 +109,27 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
             .Where(t => t != null && IsValidTargetToLoad(t));
 
 
-        var window = new Dialog_ItemSelect<Apparel>(itemsOnMap, ContainedThings, Props.storageCapacity, (loadList, unloadList) =>
-        {
-            // 1. 立即执行卸载 (逻辑上优先)
-            foreach (var item in unloadList)
+        var window = new Dialog_ItemSelect<Apparel>(itemsOnMap, ContainedThings, Props.storageCapacity,
+            (loadList, unloadList) =>
             {
-                TryDrop(item.thing, parent.PositionHeld, currentMap, ThingPlaceMode.Near, item.count, out _);
-            }
+                // 1. 立即执行卸载 (逻辑上优先)
+                foreach (var item in unloadList)
+                {
+                    TryDrop(item.thing, parent.PositionHeld, currentMap, ThingPlaceMode.Near, item.count, out _);
+                }
 
-            // 2. 创建装载的 job
-            foreach (var item in loadList)
-            {
-                Job loadJob = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, item.thing, parent);
-                loadJob.count = item.count < 1 ? 1 : item.count;
+                // 2. 创建装载的 job
+                foreach (var item in loadList)
+                {
+                    Job loadJob = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, item.thing,
+                        parent);
+                    loadJob.count = item.count < 1 ? 1 : item.count;
 
-                Wearer.jobs.jobQueue.EnqueueFirst(loadJob);
-            }
+                    Wearer.jobs.jobQueue.EnqueueFirst(loadJob);
+                }
 
-            Wearer.jobs.EndCurrentJob(JobCondition.InterruptForced);
-        });
+                Wearer.jobs.EndCurrentJob(JobCondition.InterruptForced);
+            });
 
         Find.WindowStack.Add(window);
     }

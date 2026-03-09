@@ -116,7 +116,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
     /// <summary>
     /// 核心过滤逻辑：判断一个物品是否符合容器交互要求
     /// </summary>
-    protected virtual bool IsValidTargetToLoad(Thing thingToLoad)
+    public virtual bool IsValidTargetToLoad(Thing thingToLoad)
     {
         if (!IsValidTargetToLoadBase(thingToLoad)) return false;
         if (thingToLoad.IsForbidden(Wearer)) return false;
@@ -126,10 +126,13 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
     }
 
     /// <summary>
-    /// IsForbidden(this Thing t, Pawn pawn) 对于征召状态的Pawn有特殊处理，是否禁用还是交由调用者来判断
+    /// 这里只进行最基础的判断，过滤功能性装备的校验交给子类实现。 
+    /// 此外 IsForbidden(this Thing t, Pawn pawn) 对于征召状态的Pawn有特殊处理，是否允许交互被禁用的物品最好视情况判断
     /// </summary>
     /// <remarks>
-    /// IsForbidden(this Thing t, Pawn pawn) contains special logic for drafted Pawns; the final determination of the forbidden state is deferred to the caller.
+    /// Performs only the most fundamental checks. Validation for functional equipment is deferred to subclasses.
+    /// Additionally, IsForbidden(this Thing t, Pawn pawn) handles drafted Pawns uniquely; 
+    /// whether to allow interaction with forbidden items should be evaluated by the caller based on the specific context.
     /// </remarks>
     public static bool IsValidTargetToLoadBase(Thing thingToLoad)
     {
@@ -166,15 +169,13 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
     protected abstract IEnumerable<Gizmo> GetExtraGizmosInContainer();
 
     /// <summary>
-    /// 注意：RimWorld 的 IThingHolder 接口并非类型安全。
-    /// 警告：在使用此方法进行身份伪装 (Identity Proxy) 时，必须确保此容器的泛型类型 <typeparamref name="T"/> 
+    /// 注意：在使用此方法进行身份伪装 (owner Proxy) 时，必须确保此容器的泛型类型 <typeparamref name="T"/> 
     /// 与目标持有者 (newTarget) 内部预期的容器类型完全匹配。
     /// 例如：若 newTarget 为 Pawn_ApparelTracker，则 T 必须派生自 Apparel。
     /// 类型不匹配会导致 Pawn_ApparelTracker 在处理物品移除 (NotifyRemoved) 时触发 InvalidCastException。
     /// </summary>
     /// <remarks>
-    /// Note: RimWorld's IThingHolder interface is NOT type-safe as it lacks content type information.
-    /// WARNING: When using this method for identity proxying, the generic type <typeparamref name="T"/> 
+    /// Note: When using this method for owner proxying, the generic type <typeparamref name="T"/> 
     /// MUST be strictly compatible with the underlying collection type expected by the 'newTarget'.
     /// Example: If 'newTarget' is a Pawn_ApparelTracker, T MUST derive from Apparel.
     /// Mismatched types will trigger an InvalidCastException during the target's internal 
@@ -188,15 +189,16 @@ public abstract class Comp_ThingHolderContainer<T, TP> : ThingComp, IThingHolder
 
 
     /// <summary>
+    /// 调用此方法之前需要对 ownerItem 调用 SetOwner
     /// Rimworld 会对 Label 等字段相同的 Gizmo 进行合并，必须对 Label 加以修改，否则装载多个同类物品时只会显示一个 Gizmo
-    /// 在此处需要对 "Verb.caster" 重新赋值，让容器内物品的 Verb.caster 指向装备者
+    /// NOTE：在此处需要对 "Verb.caster" 重新赋值，让容器内物品的 Verb.caster 指向装备者
     /// </summary>
     /// <remarks>
-    /// RimWorld merges Gizmos that share identical fields such as Label.
-    /// Therefore, the Label must be modified; otherwise, when multiple identical items are loaded,
-    /// only a single Gizmo will be displayed.
-    /// Here we also reassign "Verb.caster" so that the Verb of items inside the container
-    /// uses the wearer of the apparel as the caster.
+    /// SetOwner must be called on ownerItem before invoking this method.
+    /// Since RimWorld merges Gizmos with identical Labels, the Label must be modified; 
+    /// otherwise, only one Gizmo will be displayed when multiple items of the same type are equipped.
+    /// NOTE: "Verb.caster" needs to be reassigned here to ensure that the Verb.caster of the 
+    /// contained item correctly points to the equipper.
     /// </remarks>
     protected virtual Gizmo ProcessProxyGizmo(Gizmo gizmo, ThingWithComps ownerItem, int index)
     {
