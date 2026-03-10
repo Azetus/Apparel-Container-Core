@@ -7,4 +7,8 @@
     <ACC_FloatMenu_LoadingTargetInto_label>Load into {0}</ACC_FloatMenu_LoadingTargetInto_label>
     <ACC_Btn_Confirm_label>Confirm</ACC_Btn_Confirm_label>
     <ACC_Btn_Cancel_label>Cancel</ACC_Btn_Cancel_label>
+
+    <ACC_Contents_label>Contents</ACC_Contents_label>
+    <ACC_Stats_Capacity_label>Storage capacity</ACC_Stats_Capacity_label>
+    <ACC_Stats_Capacity_desc>The maximum number of items this equipment can store.</ACC_Stats_Capacity_desc>
 </LanguageData>

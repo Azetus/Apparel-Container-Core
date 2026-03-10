@@ -7,4 +7,8 @@
     <ACC_FloatMenu_LoadingTargetInto_label>装入 {0}</ACC_FloatMenu_LoadingTargetInto_label>
     <ACC_Btn_Confirm_label>确认</ACC_Btn_Confirm_label>
     <ACC_Btn_Cancel_label>取消</ACC_Btn_Cancel_label>
+    
+    <ACC_Contents_label>内容</ACC_Contents_label>
+    <ACC_Stats_Capacity_label>存储容量</ACC_Stats_Capacity_label>
+    <ACC_Stats_Capacity_desc>这个装备能存储的最大物品数量</ACC_Stats_Capacity_desc>
 </LanguageData>
