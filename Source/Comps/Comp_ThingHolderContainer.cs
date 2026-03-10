@@ -108,10 +108,15 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         }
     }
 
-    public override void PostDeSpawn(Map map, DestroyMode mode = DestroyMode.Vanish)
+    public override void PostDestroy(DestroyMode mode, Map previousMap)
     {
-        base.PostDeSpawn(map, mode);
-        TryDropAll(map);
+        base.PostDestroy(mode, previousMap);
+        if (_innerContainer == null) return;
+        
+        if (previousMap != null)
+            TryDropAll(previousMap);
+        else
+            _innerContainer.ClearAndDestroyContents(DestroyMode.Vanish);
     }
 
     /// <summary>
