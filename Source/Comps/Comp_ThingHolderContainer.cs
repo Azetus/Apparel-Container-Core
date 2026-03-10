@@ -74,6 +74,8 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
             return 0;
         if (!CanAcceptMore)
             return 0;
+        if(!IsTargetInteractable(item))
+            return 0;
         int numToTake = Mathf.Min(count, item.stackCount);
         Thing thingToLoad = item.SplitOff(numToTake);
         int actuallyAdded = _innerContainer.TryAdd(thingToLoad, numToTake, canMergeWithExistingStacks);
@@ -134,7 +136,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         if (!IsValidTargetToLoadBase(thingToLoad)) return false;
         // 不许套娃
         if (thingToLoad == this.parent) return false;
-        return IsFunctionalUtility(thingToLoad);
+        return IsFunctionalUtility<T>(thingToLoad);
     }
 
     /// <summary>

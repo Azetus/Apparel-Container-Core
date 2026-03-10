@@ -8,13 +8,18 @@ namespace ACC_ApparelContainerCore.Comps;
 
 public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, CompProperties_GenericPackForApparel>
 {
+    public override bool IsTargetInteractable(Thing thingToInteract)
+    {
+        if (thingToInteract.IsForbidden(Faction.OfPlayer) || thingToInteract.IsForbidden(Wearer)) return false;
+        return IsValidTargetToLoad(thingToInteract);
+    }
+
     public override bool IsValidTargetToLoad(Thing thingToLoad)
     {
         if (!IsValidTargetToLoadBase(thingToLoad)) return false;
-        if (thingToLoad.IsForbidden(Faction.OfPlayer) || thingToLoad.IsForbidden(Wearer)) return false;
         // 不许套娃
         if (thingToLoad == this.parent) return false;
-        return IsFunctionalUtility(thingToLoad);
+        return IsFunctionalUtility<Apparel>(thingToLoad);
     }
 
 
@@ -58,7 +63,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
             }
         }
     }
-    
+
 
     // 物品选择器
     private void OpenPicker()
