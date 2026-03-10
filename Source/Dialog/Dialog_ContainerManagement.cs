@@ -114,7 +114,7 @@ public class Dialog_ContainerManagement<T, TP> : Window
 
     private void DropAction(T thing)
     {
-        Pawn wearer = ownerComp.Wearer;
+        var wearer = ownerComp.Wearer;
         if (wearer == null || wearer.MapHeld == null) return;
         if (ownerComp.TryDrop(thing, wearer.PositionHeld, wearer.MapHeld, ThingPlaceMode.Near, out _))
         {

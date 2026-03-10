@@ -1,8 +1,6 @@
 ﻿using ACC_ApparelContainerCore.Comps;
 using ACC_ApparelContainerCore.Comps.Props;
 using RimWorld;
-using Verse;
-using Verse.AI;
 
 
 namespace ACC_ApparelContainerCore.JobDrivers;

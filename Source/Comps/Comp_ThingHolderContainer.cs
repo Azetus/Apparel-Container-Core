@@ -1,9 +1,9 @@
 ﻿using ACC_ApparelContainerCore.Comps.Props;
-using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
 using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
+using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
 
 namespace ACC_ApparelContainerCore.Comps;
 
