@@ -214,7 +214,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         if (gizmo is Command command)
         {
             // 区分 Label，防止 UI 合并图标
-            command.defaultLabel = $"{ownerItem.LabelCapNoCount} [{index}-{parent.LabelShort}]";
+            command.defaultLabel = $"{ownerItem.LabelCapNoCount} [{index}]-{parent.LabelShort}";
             // 核心：处理 Verb.caster关联
             if (command is Command_VerbTarget { verb: not null } verbCommand)
                 verbCommand.verb.caster = this.Wearer;
