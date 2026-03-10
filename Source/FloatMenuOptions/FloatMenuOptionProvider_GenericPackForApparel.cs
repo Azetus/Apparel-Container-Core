@@ -1,64 +1,29 @@
 ﻿using ACC_ApparelContainerCore.Comps;
+using ACC_ApparelContainerCore.Comps.Props;
 using ACC_ApparelContainerCore.DefOfs;
 using RimWorld;
 using Verse;
-using Verse.AI;
 
 namespace ACC_ApparelContainerCore.FloatMenuOptions;
 
-public class FloatMenuOptionProvider_GenericPackForApparel : FloatMenuOptionProvider
+public class FloatMenuOptionProvider_GenericPackForApparel : FloatMenuOptionProvider_ThingHolderContainer<Apparel,
+    CompProperties_GenericPackForApparel, Comp_GenericPackForApparel>
 {
-    public override bool Drafted => true;
-    public override bool Undrafted => true;
-    public override bool Multiselect => false;
-    public override bool MechanoidCanDo => true;
-    public override bool RequiresManipulation => true;
+    protected override JobDef JobDef => ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel;
 
-    public override bool SelectedPawnValid(Pawn pawn, FloatMenuContext context)
+    protected override IEnumerable<Thing> GetContainersOnPawn(Pawn pawn)
     {
-        if (!base.SelectedPawnValid(pawn, context))
-            return false;
         return pawn.apparel?.WornApparel
-            .Any(a => a.HasComp<Comp_GenericPackForApparel>()) ?? false;
+            .Where(a => a.HasComp<Comp_GenericPackForApparel>()) ?? Enumerable.Empty<Thing>();
     }
 
-    public override bool TargetThingValid(Thing thing, FloatMenuContext context)
+    protected override bool CanLoadIntoTarget(Thing targetThing, Comp_GenericPackForApparel containerComp, Thing containerThing)
     {
-        if (!base.TargetThingValid(thing, context))
-            return false;
-        // if(context.FirstSelectedPawn is Pawn pawn && thing.IsForbidden(pawn))
-        //     return false;
+        return containerComp.IsValidTargetToLoad(targetThing);
+    }
+
+    protected override bool IsValidTargetThing(Thing thing)
+    {
         return Comp_GenericPackForApparel.IsValidTargetToLoadBase(thing);
-    }
-
-    // 返回右键菜单选项
-    public override IEnumerable<FloatMenuOption> GetOptionsFor(Thing clickedThing, FloatMenuContext context)
-    {
-        Pawn pawn = context.FirstSelectedPawn;
-        if (pawn == null || clickedThing == null) yield break;
-        var containers = pawn.apparel?.WornApparel
-            .Where(a => a.HasComp<Comp_GenericPackForApparel>())
-            .ToList();
-
-        if (containers == null || containers.NullOrEmpty()) yield break;
-        // 为每一个容器生成一个独立的 FloatMenuOption
-        foreach (var container in containers)
-        {
-            if (container == null) continue;
-            var comp = container.TryGetComp<Comp_GenericPackForApparel>();
-            if (comp == null) continue;
-
-            if (comp.CanAcceptMore && comp.IsValidTargetToLoad(clickedThing))
-            {
-                string label = $"Loading into {container.Label}";
-                yield return new FloatMenuOption(label, () =>
-                {
-                    clickedThing.SetForbidden(value: false);
-                    Job job = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, clickedThing, container);
-                    job.count = 1;
-                    pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-                });
-            }
-        }
     }
 }
