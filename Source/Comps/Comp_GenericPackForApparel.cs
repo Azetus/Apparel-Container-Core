@@ -22,9 +22,10 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
     {
         yield return new Command_Action
         {
-            defaultLabel = "Manage Pack",
-            defaultDesc = "loading/unloading pack",
-            action = OpenManagementMenu
+            defaultLabel = parent.def.label,
+            defaultDesc = "Manage Pack",
+            icon = parent.def.uiIcon,
+            action = OpenPicker
         };
     }
 
@@ -57,32 +58,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
             }
         }
     }
-
-    private void OpenManagementMenu()
-    {
-        List<FloatMenuOption> options = new List<FloatMenuOption>();
-
-        options.Add(new FloatMenuOption("open menu", OpenPicker));
-        // 卸载逻辑
-        options.Add(new FloatMenuOption("unloading item...", () =>
-        {
-            List<FloatMenuOption> unloadOptions = InnerContainer.Select(t => new FloatMenuOption(t.LabelCap, () =>
-                {
-                    if (TryDrop(t, parent.PositionHeld, parent.MapHeld, ThingPlaceMode.Near, out _))
-                    {
-                        Messages.Message($"dropping {t.LabelCap}", MessageTypeDefOf.NeutralEvent);
-                    }
-                }))
-                .ToList();
-
-            if (unloadOptions.Count == 0) unloadOptions.Add(new FloatMenuOption("pack is empty", null));
-
-            Find.WindowStack.Add(new FloatMenu(unloadOptions));
-        }));
-
-        Find.WindowStack.Add(new FloatMenu(options));
-    }
-
+    
 
     // 物品选择器
     private void OpenPicker()
