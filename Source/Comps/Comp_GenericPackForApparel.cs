@@ -48,6 +48,16 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
                     }
                 }
             }
+            // 处理技能，比如主脑节点
+            foreach (Ability abl in subItem.AllAbilitiesForReading ?? Enumerable.Empty<Ability>())
+            {
+                abl.pawn = Wearer;
+                abl.verb.caster = Wearer;
+                foreach (Gizmo gizmo in abl.GetGizmos() ?? Enumerable.Empty<Gizmo>())
+                {
+                    yield return gizmo;
+                }
+            }
         }
     }
 }
