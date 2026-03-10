@@ -47,14 +47,14 @@ public class FloatMenuOptionProvider_GenericPackForApparel : FloatMenuOptionProv
             if (container == null) continue;
             var comp = container.TryGetComp<Comp_GenericPackForApparel>();
             if (comp == null) continue;
-            
+
             if (comp.CanAcceptMore && comp.IsValidTargetToLoad(clickedThing))
             {
                 string label = $"Loading into {container.Label}";
                 yield return new FloatMenuOption(label, () =>
                 {
-                    Job job = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, clickedThing,
-                        container);
+                    clickedThing.SetForbidden(value: false);
+                    Job job = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, clickedThing, container);
                     job.count = 1;
                     pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
                 });
