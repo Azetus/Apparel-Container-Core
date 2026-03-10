@@ -1,5 +1,4 @@
 ﻿using ACC_ApparelContainerCore.Comps.Props;
-using ACC_ApparelContainerCore.Dialog;
 using RimWorld;
 using Verse;
 using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
@@ -20,18 +19,6 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
         // 不许套娃
         if (thingToLoad == this.parent) return false;
         return IsFunctionalUtility<Apparel>(thingToLoad);
-    }
-
-
-    protected override IEnumerable<Gizmo> GetContainerGizmos()
-    {
-        yield return new Command_Action
-        {
-            defaultLabel = parent.def.label,
-            defaultDesc = "ACC_ManagePackGizmo_defaultDesc".Translate(),
-            icon = parent.def.uiIcon,
-            action = OpenPicker
-        };
     }
 
     /**
@@ -62,18 +49,5 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
                 }
             }
         }
-    }
-
-
-    // 物品选择器
-    private void OpenPicker()
-    {
-        Map currentMap = parent.MapHeld;
-
-        if (currentMap == null || Wearer == null) return;
-
-        var window = new Dialog_ContainerManagement<Apparel, CompProperties_GenericPackForApparel>(this);
-
-        Find.WindowStack.Add(window);
     }
 }

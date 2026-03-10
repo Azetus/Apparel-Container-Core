@@ -114,9 +114,10 @@ public class Dialog_ContainerManagement<T, TP> : Window
 
     private void DropAction(T thing)
     {
-        var wearer = ownerComp.Wearer;
-        if (wearer == null || wearer.MapHeld == null) return;
-        if (ownerComp.TryDrop(thing, wearer.PositionHeld, wearer.MapHeld, ThingPlaceMode.Near, out _))
+        Map map = ownerComp.parent.MapHeld;
+        IntVec3 pos = ownerComp.parent.PositionHeld;
+        if (map == null) return;
+        if (ownerComp.TryDrop(thing, pos, map, ThingPlaceMode.Near, out _))
         {
             SoundDefOf.Tick_Low.PlayOneShotOnCamera();
             Messages.Message("ACC_Message_Dropped".Translate(thing.LabelShort), MessageTypeDefOf.CautionInput, false);

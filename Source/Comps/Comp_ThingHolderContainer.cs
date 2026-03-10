@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using ACC_ApparelContainerCore.Comps.Props;
+using ACC_ApparelContainerCore.Dialog;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -112,7 +113,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     {
         base.PostDestroy(mode, previousMap);
         if (_innerContainer == null) return;
-        
+
         if (previousMap != null)
             TryDropAll(previousMap);
         else
@@ -169,6 +170,12 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     }
 
     // --- 处理Gizmo ---
+    public override IEnumerable<Gizmo> CompGetGizmosExtra()
+    {
+        foreach (var g in base.CompGetWornGizmosExtra()) yield return g;
+        yield return CreateManagementGizmo();
+    }
+
     public override IEnumerable<Gizmo> CompGetWornGizmosExtra()
     {
         foreach (var g in base.CompGetWornGizmosExtra()) yield return g;
@@ -176,10 +183,30 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         foreach (var extraGizmo in GetExtraGizmosInContainer()) yield return extraGizmo;
     }
 
-    protected abstract IEnumerable<Gizmo> GetContainerGizmos();
+    protected virtual IEnumerable<Gizmo> GetContainerGizmos()
+    {
+        yield return CreateManagementGizmo();
+    }
 
     // ----- 代理容器内物品的 Gizmo -----
     protected abstract IEnumerable<Gizmo> GetExtraGizmosInContainer();
+
+    // ----- 打开背包管理窗口 -----
+    protected virtual Gizmo CreateManagementGizmo()
+    {
+        return new Command_Action
+        {
+            defaultLabel = parent.def.label,
+            defaultDesc = "ACC_ManagePackGizmo_defaultDesc".Translate(),
+            icon = parent.def.uiIcon,
+            action = () =>
+            {
+                if (parent.MapHeld == null) return;
+                var window = new Dialog_ContainerManagement<T, TP>(this);
+                Find.WindowStack.Add(window);
+            }
+        };
+    }
 
     /// <summary>
     /// 注意：在使用此方法进行身份伪装 (owner Proxy) 时，必须确保此容器的泛型类型 <typeparamref name="T"/> 
