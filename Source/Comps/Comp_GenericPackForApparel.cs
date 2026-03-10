@@ -23,7 +23,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
         yield return new Command_Action
         {
             defaultLabel = parent.def.label,
-            defaultDesc = "Manage Pack",
+            defaultDesc = "ACC_ManagePackGizmo_defaultDesc".Translate(),
             icon = parent.def.uiIcon,
             action = OpenPicker
         };

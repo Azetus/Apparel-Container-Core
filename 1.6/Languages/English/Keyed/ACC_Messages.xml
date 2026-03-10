@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <ACC_Message_Dropped>Dropped {0}</ACC_Message_Dropped>
+    <ACC_Message_LoadComplete>Loaded {0} x {1} into {2}</ACC_Message_LoadComplete>
+    <ACC_Message_LoadFail>Cannot load {0}：{1} is full or item is unavailable</ACC_Message_LoadFail>
+</LanguageData>

@@ -41,7 +41,7 @@ public class Dialog_ContainerManagement<T, TP> : Window
 
         Rect countRect = new Rect(0f, 40f, inRect.width, 25f);
         if (currentCount >= maxCapacity) GUI.color = ColorLibrary.RedReadable;
-        Widgets.Label(countRect, $"Capacity: {currentCount} / {maxCapacity}");
+        Widgets.Label(countRect, $"{"ACC_Capacity_label".Translate()}: {currentCount} / {maxCapacity}");
         GUI.color = Color.white;
 
         // --- 分段进度条 ---
@@ -70,7 +70,7 @@ public class Dialog_ContainerManagement<T, TP> : Window
 
         // --- 底部按钮 ---
         Rect closeRect = new Rect(inRect.width / 2f - 60f, inRect.height - 45f, 120f, 35f);
-        if (Widgets.ButtonText(closeRect, "Close"))
+        if (Widgets.ButtonText(closeRect, "ACC_Btn_Close_label".Translate()))
         {
             this.Close();
         }
@@ -106,7 +106,7 @@ public class Dialog_ContainerManagement<T, TP> : Window
         Text.Anchor = TextAnchor.UpperLeft;
 
         Rect dropRect = new Rect(rect.xMax - 85f, rect.y + 3f, 80f, rect.height - 6f);
-        if (Widgets.ButtonText(dropRect, "Drop"))
+        if (Widgets.ButtonText(dropRect, "ACC_Btn_Drop_label".Translate()))
         {
             DropAction(thing);
         }
@@ -119,7 +119,7 @@ public class Dialog_ContainerManagement<T, TP> : Window
         if (ownerComp.TryDrop(thing, wearer.PositionHeld, wearer.MapHeld, ThingPlaceMode.Near, out _))
         {
             SoundDefOf.Tick_Low.PlayOneShotOnCamera();
-            Messages.Message("ACC_MessageDropped".Translate(thing.LabelShort), MessageTypeDefOf.CautionInput, false);
+            Messages.Message("ACC_Message_Dropped".Translate(thing.LabelShort), MessageTypeDefOf.CautionInput, false);
         }
     }
 }

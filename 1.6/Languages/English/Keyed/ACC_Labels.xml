@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <ACC_ManagePackGizmo_defaultDesc>Manage pack</ACC_ManagePackGizmo_defaultDesc>
+    <ACC_Capacity_label>Capacity</ACC_Capacity_label>
+    <ACC_Btn_Close_label>Close</ACC_Btn_Close_label>
+    <ACC_Btn_Drop_label>Drop</ACC_Btn_Drop_label>
+    <ACC_FloatMenu_LoadingTargetInto_label>Load into {0}</ACC_FloatMenu_LoadingTargetInto_label>
+    <ACC_Btn_Confirm_label>Confirm</ACC_Btn_Confirm_label>
+    <ACC_Btn_Cancel_label>Cancel</ACC_Btn_Cancel_label>
+</LanguageData>

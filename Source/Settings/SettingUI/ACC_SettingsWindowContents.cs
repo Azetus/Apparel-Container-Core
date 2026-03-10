@@ -92,22 +92,25 @@ public static class ACC_SettingsWindowContents
         float curX = rect.x;
 
         // 严格模式
-        Widgets.CheckboxLabeled(new Rect(curX, rect.y, 140f, 30f), "Strict mode", ref settings.useStrictWhitelist);
-
+        Widgets.CheckboxLabeled(new Rect(curX, rect.y, 140f, 30f), "ACC_Setting_StrictMode_label".Translate(), ref settings.useStrictWhitelist);
+        TooltipHandler.TipRegion(new Rect(curX, rect.y, 140f, 30f), "ACC_Setting_StrictMode_desc".Translate());
         curX += 150f;
         // 刷新按钮
-        if (Widgets.ButtonText(new Rect(curX, rect.y, 110f, 30f), "Refresh"))
+        if (Widgets.ButtonText(new Rect(curX, rect.y, 110f, 30f), "ACC_Setting_Refresh_label".Translate()))
         {
             RefreshApparelCache();
-            Messages.Message("ACC_CacheRefreshed".Translate(), MessageTypeDefOf.TaskCompletion, false);
+            Messages.Message("ACC_Setting_Message_Refresh".Translate(allApparelCached.Count), MessageTypeDefOf.TaskCompletion, false);
         }
+        TooltipHandler.TipRegion(new Rect(curX, rect.y, 110f, 30f), "ACC_Setting_Refresh_desc".Translate());
 
         curX += 150f;
         // 清理按钮
-        if (Widgets.ButtonText(new Rect(curX, rect.y, 110f, 30f), "Clear ALL List"))
+        if (Widgets.ButtonText(new Rect(curX, rect.y, 110f, 30f), "ACC_Setting_ClearList_label".Translate()))
         {
             settings.DoCleanup();
         }
+        TooltipHandler.TipRegion(new Rect(curX, rect.y, 110f, 30f), "ACC_Setting_ClearList_desc".Translate());
+
     }
 
 
@@ -119,7 +122,7 @@ public static class ACC_SettingsWindowContents
         Rect middleRect = new Rect(leftRect.xMax, inRect.y, rightRect.x - leftRect.xMax, inRect.height);
 
         // --- 左侧：源列表 ---
-        DrawCustomList(leftRect, "All Apparel (Source)", ref filterLeft, ref scrollPosLeft,
+        DrawCustomList(leftRect, "ACC_Setting_ItemSource_label".Translate(), ref filterLeft, ref scrollPosLeft,
             allApparelCached, selectedLeft, () =>
             {
                 selectedWhite.Clear();
@@ -137,7 +140,7 @@ public static class ACC_SettingsWindowContents
         var whiteDefs = settings.whitelist
             .Select(name => DefDatabase<ThingDef>.GetNamedSilentFail(name))
             .Where(d => d != null);
-        DrawCustomList(whiteRect, "Whitelist", ref filterWhite, ref scrollPosWhite,
+        DrawCustomList(whiteRect, "ACC_Setting_Whitelist_label".Translate(), ref filterWhite, ref scrollPosWhite,
             whiteDefs, selectedWhite, () =>
             {
                 selectedLeft.Clear();
@@ -152,7 +155,7 @@ public static class ACC_SettingsWindowContents
         Rect blackRect = new Rect(rightRect.x, midTransferRect.yMax + paddingOffset, rightRect.width, subListHeight);
         var blackDefs = settings.blacklist.Select(name => DefDatabase<ThingDef>.GetNamedSilentFail(name))
             .Where(d => d != null);
-        DrawCustomList(blackRect, "Blacklist", ref filterBlack, ref scrollPosBlack,
+        DrawCustomList(blackRect, "ACC_Setting_Blacklist_label".Translate(), ref filterBlack, ref scrollPosBlack,
             blackDefs, selectedBlack, () =>
             {
                 selectedLeft.Clear();
@@ -177,7 +180,7 @@ public static class ACC_SettingsWindowContents
 
         // 选择所有
         float ClearButtonWidth = rect.width / 5f;
-        if (Widgets.ButtonText(new Rect(rect.x + (ClearButtonWidth * 4f), rect.y, ClearButtonWidth, listHeaderHeight), "Select All"))
+        if (Widgets.ButtonText(new Rect(rect.x + (ClearButtonWidth * 4f), rect.y, ClearButtonWidth, listHeaderHeight), "ACC_Setting_SelectAll_label".Translate()))
         {
             onFocus?.Invoke();
             foreach (var def in itemList)
@@ -240,7 +243,7 @@ public static class ACC_SettingsWindowContents
     private static void DrawMainTransferButtons(Rect rect, ApparelContainerCoreSetting settings)
     {
         float autoAddY = rect.y + (rect.height / 3f) - btnHeight * 4f;
-        if (Widgets.ButtonText(new Rect(rect.x + 5f, autoAddY, rect.width - 10f, btnHeight), ">>Auto"))
+        if (Widgets.ButtonText(new Rect(rect.x + 5f, autoAddY, rect.width - 10f, btnHeight), "ACC_Setting_AutoAdd_Btn_label".Translate()))
         {
             DoAutoAddLogic(settings);
             selectedLeft.Clear();
@@ -319,8 +322,8 @@ public static class ACC_SettingsWindowContents
     {
         // 弹出确认框防止误触
         Find.WindowStack.Add(new Dialog_MessageBox(
-            "此操作将扫描所有带有特殊功能的装备（重写了Gizmo方法）并加入白名单。\n注意：这可能会错误包含某些Mod护盾，请在之后手动检查黑名单。",
-            "确定", () =>
+            "ACC_Setting_AutoAdd_DialogMessage".Translate(),
+            "ACC_Btn_Confirm_label".Translate(), () =>
             {
                 int addedCount = 0;
                 foreach (var def in allApparelCached)
@@ -344,7 +347,7 @@ public static class ACC_SettingsWindowContents
                     }
                 }
 
-                Messages.Message($"自动识别完成，已添加 {addedCount} 件物品至白名单。", MessageTypeDefOf.TaskCompletion);
-            }, "取消"));
+                Messages.Message($"ACC_Setting_Message_AutoComplete".Translate(addedCount), MessageTypeDefOf.TaskCompletion);
+            }, "ACC_Btn_Cancel_label".Translate()));
     }
 }

@@ -14,7 +14,7 @@ public class ApparelContainerCoreSetting: ModSettings
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Values.Look(ref useStrictWhitelist, "useStrictWhitelist", false);
+        Scribe_Values.Look(ref useStrictWhitelist, "ACC_StrictWhitelist", false);
 
         if (Scribe.mode == LoadSaveMode.Saving)
         {

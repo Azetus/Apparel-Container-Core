@@ -25,7 +25,7 @@ public abstract class FloatMenuOptionProvider_ThingHolderContainer<TThing, TProp
 
     protected abstract bool IsValidTargetThing(Thing thing);
 
-    protected virtual string GetMenuLabel(Thing container) => $"Loading into {container.Label}";
+    protected virtual string GetMenuLabel(Thing container) => "ACC_FloatMenu_LoadingTargetInto_label".Translate(container.Label);
 
     protected virtual Job CreateJob(Thing targetThing, Thing container, int count)
     {

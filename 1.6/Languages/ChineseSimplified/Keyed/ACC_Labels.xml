@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <ACC_ManagePackGizmo_defaultDesc>管理背包</ACC_ManagePackGizmo_defaultDesc>
+    <ACC_Capacity_label>容量</ACC_Capacity_label>
+    <ACC_Btn_Close_label>关闭</ACC_Btn_Close_label>
+    <ACC_Btn_Drop_label>丢下</ACC_Btn_Drop_label>
+    <ACC_FloatMenu_LoadingTargetInto_label>装入 {0}</ACC_FloatMenu_LoadingTargetInto_label>
+    <ACC_Btn_Confirm_label>确认</ACC_Btn_Confirm_label>
+    <ACC_Btn_Cancel_label>取消</ACC_Btn_Cancel_label>
+</LanguageData>

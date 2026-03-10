@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <ACC_Message_Dropped>已丟下 {0}</ACC_Message_Dropped>
+    <ACC_Message_LoadComplete>已將 {0} x {1} 裝入 {2}</ACC_Message_LoadComplete>
+    <ACC_Message_LoadFail>無法裝載 {0}：{1}已滿或物品不可用</ACC_Message_LoadFail>
+</LanguageData>

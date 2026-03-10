@@ -14,25 +14,25 @@ public abstract class JobDriver_ThingHolderContainer<TThing, TProps, TComp> : Jo
     protected Thing? TargetThing => job.targetA.Thing;
     protected Thing? TargetContainer => job.targetB.Thing;
     protected TComp? ContainerComp => TargetContainer?.TryGetComp<TComp>();
-    
+
     public override bool TryMakePreToilReservations(bool errorOnFailed)
     {
         // 同时预留物品和包，防止包在走路过程中被脱掉
         return pawn.Reserve(job.targetA.Thing, job, 1, -1, null, errorOnFailed) &&
                pawn.Reserve(job.targetB.Thing, job, 1, -1, null, errorOnFailed);
     }
-    
+
     // 校验job的相关target和comp
     protected virtual bool ValidateTargets()
     {
-        return TargetThing != null && 
-               TargetContainer != null && 
+        return TargetThing != null &&
+               TargetContainer != null &&
                ContainerComp != null &&
-               !TargetThing.Destroyed && 
+               !TargetThing.Destroyed &&
                !TargetContainer.Destroyed &&
                TargetThing is TThing;
     }
-    
+
     // 失败条件
     protected virtual void AddFailConditions()
     {
@@ -40,7 +40,7 @@ public abstract class JobDriver_ThingHolderContainer<TThing, TProps, TComp> : Jo
         this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
         this.FailOnDestroyedOrNull(TargetIndex.B);
     }
-    
+
     // 调用ACC_Comp的目标校验
     protected virtual bool CanLoadIntoContainer(TThing thing, TComp comp)
     {
@@ -50,27 +50,27 @@ public abstract class JobDriver_ThingHolderContainer<TThing, TProps, TComp> : Jo
     // 装载目标
     protected abstract int PerformLoad(TThing thing, TComp comp, int count);
 
-    
+
     // 装载完成后执行的内容
     protected virtual void OnLoadComplete(int amountLoaded, TThing thing, Thing container)
     {
         if (amountLoaded > 0)
         {
             Messages.Message(
-                $"Loading {amountLoaded} x {thing.LabelNoCount} into {container.LabelCap}",
+                "ACC_Message_LoadComplete".Translate(thing.LabelNoCount, amountLoaded, container.LabelCap),
                 MessageTypeDefOf.PositiveEvent
             );
         }
         else
         {
             Messages.Message(
-                "Container is full or unable to load item",
+                "ACC_Message_LoadFail".Translate(thing.LabelNoCount,container.LabelCap),
                 MessageTypeDefOf.RejectInput
             );
         }
     }
-    
-    
+
+
     public override IEnumerable<Toil> MakeNewToils()
     {
         // 失败条件
@@ -90,7 +90,7 @@ public abstract class JobDriver_ThingHolderContainer<TThing, TProps, TComp> : Jo
             {
                 var thing = TargetThing;
                 var comp = ContainerComp;
-            
+
                 if (thing is not TThing thingToLoad || comp is not TComp targetComp || !CanLoadIntoContainer(thingToLoad, targetComp))
                     return;
 

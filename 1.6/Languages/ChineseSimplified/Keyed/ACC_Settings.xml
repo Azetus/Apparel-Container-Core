@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+	<ACC_Setting_StrictMode_label>严格白名单</ACC_Setting_StrictMode_label>
+    <ACC_Setting_StrictMode_desc>开启后仅允许白名单内的物品</ACC_Setting_StrictMode_desc>
+    <ACC_Setting_Refresh_label>刷新</ACC_Setting_Refresh_label>
+    <ACC_Setting_Refresh_desc>重新扫描当前游戏、DLC与Mod中所有衣着类装备Defs</ACC_Setting_Refresh_desc>
+    <ACC_Setting_Message_Refresh>装备列表已更新：已获取{0}个Defs</ACC_Setting_Message_Refresh>
+    <ACC_Setting_ClearList_label>清空名单</ACC_Setting_ClearList_label>
+    <ACC_Setting_ClearList_desc>清空黑名单与白名单</ACC_Setting_ClearList_desc>
+    <ACC_Setting_ItemSource_label>所有装备</ACC_Setting_ItemSource_label>
+    <ACC_Setting_Whitelist_label>白名单</ACC_Setting_Whitelist_label>
+    <ACC_Setting_Blacklist_label>黑名单</ACC_Setting_Blacklist_label>
+    <ACC_Setting_SelectAll_label>选择所有</ACC_Setting_SelectAll_label>
+    <ACC_Setting_AutoAdd_Btn_label>>>自动</ACC_Setting_AutoAdd_Btn_label>
+    <ACC_Setting_AutoAdd_DialogMessage>此操作将扫描所有带有特殊功能的装备（添加了额外的Gizmo按钮）并加入白名单。\n注意：这可能会错误包含某些装备（比如护盾腰带和掷弹装甲），请在之后手动检查白名单。</ACC_Setting_AutoAdd_DialogMessage>
+    <ACC_Setting_Message_AutoComplete>自动识别完成，已添加 {0} 件物品至白名单。</ACC_Setting_Message_AutoComplete>
+    
+</LanguageData>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+	<ACC_Setting_StrictMode_label>Strict Whitelist</ACC_Setting_StrictMode_label>
+    <ACC_Setting_StrictMode_desc>When enabled, only items explicitly on the whitelist are allowed.</ACC_Setting_StrictMode_desc>
+    <ACC_Setting_Refresh_label>Refresh</ACC_Setting_Refresh_label>
+    <ACC_Setting_Refresh_desc>Re-scans all apparel Defs from the base game, DLCs, and active Mods.</ACC_Setting_Refresh_desc>
+    <ACC_Setting_Message_Refresh>Apparel list updated: {0} Defs indexed.</ACC_Setting_Message_Refresh>
+    <ACC_Setting_ClearList_label>Clear Lists</ACC_Setting_ClearList_label>
+    <ACC_Setting_ClearList_desc>Wipes all entries from both the Blacklist and Whitelist.</ACC_Setting_ClearList_desc>
+    <ACC_Setting_ItemSource_label>All Apparel</ACC_Setting_ItemSource_label>
+    <ACC_Setting_Whitelist_label>Whitelist</ACC_Setting_Whitelist_label>
+    <ACC_Setting_Blacklist_label>Blacklist</ACC_Setting_Blacklist_label>
+    <ACC_Setting_SelectAll_label>Select All</ACC_Setting_SelectAll_label>
+    <ACC_Setting_AutoAdd_Btn_label>>>Auto</ACC_Setting_AutoAdd_Btn_label>
+    <ACC_Setting_AutoAdd_DialogMessage>This will scan for all apparel with functional capabilities (those that add extra Gizmo buttons) and add them to the Whitelist.\n\nNote: This may incorrectly include certain items (such as Shield belt and Grenadier armor); please review the Whitelist manually afterward.</ACC_Setting_AutoAdd_DialogMessage>
+    <ACC_Setting_Message_AutoComplete>Auto-recognition complete. {0} items added to the Whitelist.</ACC_Setting_Message_AutoComplete>
+</LanguageData>
