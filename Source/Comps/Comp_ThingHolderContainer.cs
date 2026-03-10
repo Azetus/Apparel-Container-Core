@@ -74,7 +74,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
             return 0;
         if (!CanAcceptMore)
             return 0;
-        if(!IsTargetInteractable(item))
+        if (!IsTargetInteractable(item))
             return 0;
         int numToTake = Mathf.Min(count, item.stackCount);
         Thing thingToLoad = item.SplitOff(numToTake);
@@ -101,19 +101,15 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         if (map != null)
         {
             IntVec3 dropPos = Wearer?.PositionHeld ?? parent.PositionHeld;
-            // 倒序遍历移除物品
-            for (int i = InnerContainer.Count - 1; i >= 0; i--)
-            {
-                if (InnerContainer[i] is { } thing)
-                    TryDrop(InnerContainer[i], dropPos, map, ThingPlaceMode.Near, out _);
-            }
+            if (_innerContainer != null)
+                _innerContainer.TryDropAll(dropPos, map, ThingPlaceMode.Near);
         }
     }
 
-    public override void PostDestroy(DestroyMode mode, Map previousMap)
+    public override void PostDeSpawn(Map map, DestroyMode mode = DestroyMode.Vanish)
     {
-        TryDropAll(previousMap);
-        base.PostDestroy(mode, previousMap);
+        base.PostDeSpawn(map, mode);
+        TryDropAll(map);
     }
 
     /// <summary>
@@ -124,7 +120,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         if (thingToInteract.IsForbidden(Wearer)) return false;
         return IsValidTargetToLoad(thingToInteract);
     }
-    
+
     /// <summary>
     /// 判断一个物品是否可以进入容器
     /// </summary>
