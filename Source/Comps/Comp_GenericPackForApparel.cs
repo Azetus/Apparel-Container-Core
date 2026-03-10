@@ -1,10 +1,8 @@
 ﻿using ACC_ApparelContainerCore.Comps.Props;
-using ACC_ApparelContainerCore.DefOfs;
 using ACC_ApparelContainerCore.Dialog;
-using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
 using RimWorld;
 using Verse;
-using Verse.AI;
+using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
 
 namespace ACC_ApparelContainerCore.Comps;
 
@@ -93,33 +91,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
 
         if (currentMap == null || Wearer == null) return;
 
-
-        var itemsOnMap = currentMap.listerThings.ThingsInGroup(ThingRequestGroup.Apparel)
-            .OfType<Apparel>()
-            .Where(t => t != null && IsValidTargetToLoad(t));
-
-
-        var window = new Dialog_ItemSelect<Apparel>(itemsOnMap, ContainedThings, Props.storageCapacity,
-            (loadList, unloadList) =>
-            {
-                // 1. 立即执行卸载 (逻辑上优先)
-                foreach (var item in unloadList)
-                {
-                    TryDrop(item.thing, parent.PositionHeld, currentMap, ThingPlaceMode.Near, item.count, out _);
-                }
-
-                // 2. 创建装载的 job
-                foreach (var item in loadList)
-                {
-                    Job loadJob = JobMaker.MakeJob(ACC_JobDefOfs.ACC_Job_PutInGenericPackForApparel, item.thing,
-                        parent);
-                    loadJob.count = item.count < 1 ? 1 : item.count;
-
-                    Wearer.jobs.jobQueue.EnqueueFirst(loadJob);
-                }
-
-                Wearer.jobs.EndCurrentJob(JobCondition.InterruptForced);
-            });
+        var window = new Dialog_ContainerManagement<Apparel, CompProperties_GenericPackForApparel>(this);
 
         Find.WindowStack.Add(window);
     }
