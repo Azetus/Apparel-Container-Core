@@ -101,6 +101,7 @@ public static class ACC_SettingsWindowContents
             RefreshApparelCache();
             Messages.Message("ACC_Setting_Message_Refresh".Translate(allApparelCached.Count), MessageTypeDefOf.TaskCompletion, false);
         }
+
         TooltipHandler.TipRegion(new Rect(curX, rect.y, 110f, 30f), "ACC_Setting_Refresh_desc".Translate());
 
         curX += 150f;
@@ -109,8 +110,8 @@ public static class ACC_SettingsWindowContents
         {
             settings.DoCleanup();
         }
-        TooltipHandler.TipRegion(new Rect(curX, rect.y, 110f, 30f), "ACC_Setting_ClearList_desc".Translate());
 
+        TooltipHandler.TipRegion(new Rect(curX, rect.y, 110f, 30f), "ACC_Setting_ClearList_desc".Translate());
     }
 
 
@@ -180,7 +181,8 @@ public static class ACC_SettingsWindowContents
 
         // 选择所有
         float ClearButtonWidth = rect.width / 5f;
-        if (Widgets.ButtonText(new Rect(rect.x + (ClearButtonWidth * 4f), rect.y, ClearButtonWidth, listHeaderHeight), "ACC_Setting_SelectAll_label".Translate()))
+        if (Widgets.ButtonText(new Rect(rect.x + (ClearButtonWidth * 4f), rect.y, ClearButtonWidth, listHeaderHeight),
+                "ACC_Setting_SelectAll_label".Translate()))
         {
             onFocus?.Invoke();
             foreach (var def in itemList)
@@ -335,11 +337,12 @@ public static class ACC_SettingsWindowContents
                     if (def.comps.Any(c => c is CompProperties_ThingHolderContainer)) continue;
 
                     bool hasVerb = !def.Verbs.NullOrEmpty();
+                    bool hasAbility = !def.apparel.abilities.NullOrEmpty();
                     bool hasFunctionalComp = def.comps.Any(c =>
                         c is CompProperties_Usable or CompProperties_ApparelReloadable or CompProperties_Rechargeable);
                     bool modifiedGizmo = def.comps.Any(c => UtilityChecker.IsCompPotentiallyFunctional(c.compClass));
 
-                    if ((hasVerb || hasFunctionalComp || modifiedGizmo) && !settings.whitelist.Contains(def.defName))
+                    if ((hasVerb || hasAbility || hasFunctionalComp || modifiedGizmo) && !settings.whitelist.Contains(def.defName))
                     {
                         settings.whitelist.Add(def.defName);
                         settings.blacklist.Remove(def.defName); // 确保不在黑名单冲突

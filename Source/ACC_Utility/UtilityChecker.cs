@@ -14,6 +14,13 @@ public static class UtilityChecker
         return twc.HasComp<CompUsable>() || twc.HasComp<CompApparelReloadable>() || twc.HasComp<CompRechargeable>();
     }
 
+    // 判断下是不是有Ability的Apparel
+    public static bool IsApparelHasAbility(Thing thing)
+    {
+        if (thing is not Apparel apparel) return false;
+        return !apparel.AllAbilitiesForReading.EnumerableNullOrEmpty();
+    }
+
     public static bool IsThingDefHasVerb(Thing thing)
     {
         ThingDef def = thing.def;
@@ -39,6 +46,6 @@ public static class UtilityChecker
         if (SettingUtils.IsUsingStrictWhitelistMode)
             return SettingUtils.IsInWhitelist(thing.def);
 
-        return IsThingDefHasVerb(thing) || IsThingHasFunctionalComp(ThingOfT) || SettingUtils.IsInWhitelist(thing.def);
+        return IsThingDefHasVerb(ThingOfT) || IsThingHasFunctionalComp(ThingOfT) || IsApparelHasAbility(ThingOfT) || SettingUtils.IsInWhitelist(thing.def);
     }
 }
