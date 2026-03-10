@@ -115,12 +115,23 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     }
 
     /// <summary>
-    /// 核心过滤逻辑：判断一个物品是否符合容器交互要求
+    /// 调用一下 IsForbidden
     /// </summary>
+    public virtual bool IsTargetInteractable(Thing thingToInteract)
+    {
+        if (thingToInteract.IsForbidden(Wearer)) return false;
+        return IsValidTargetToLoad(thingToInteract);
+    }
+    
+    /// <summary>
+    /// 判断一个物品是否可以进入容器
+    /// </summary>
+    /// <remarks>
+    /// Checks if the item meets the requirements to enter the container.
+    /// </remarks>
     public virtual bool IsValidTargetToLoad(Thing thingToLoad)
     {
         if (!IsValidTargetToLoadBase(thingToLoad)) return false;
-        if (thingToLoad.IsForbidden(Wearer)) return false;
         // 不许套娃
         if (thingToLoad == this.parent) return false;
         return IsFunctionalUtility(thingToLoad);

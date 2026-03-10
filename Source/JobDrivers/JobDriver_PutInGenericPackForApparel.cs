@@ -43,6 +43,8 @@ public class JobDriver_PutInGenericPackForApparel : JobDriver
         if (TargetThing is not Apparel apparel || TargetPack is not ThingWithComps pack ||
             pack.TryGetComp<Comp_GenericPackForApparel>() is not Comp_GenericPackForApparel comp)
             yield break;
+        if(!comp.IsTargetInteractable(apparel))
+            yield break;
 
         Toil putInPack = new Toil();
         putInPack.initAction = delegate
