@@ -67,12 +67,15 @@ public abstract class FloatMenuOptionProvider_ThingHolderContainer<TThing, TProp
             if (comp.CanAcceptMore && CanLoadIntoTarget(clickedThing, comp, container))
             {
                 string label = GetMenuLabel(container);
-                yield return new FloatMenuOption(label, () =>
-                {
-                    clickedThing.SetForbidden(false);
-                    Job job = CreateJob(clickedThing, container, 1);
-                    pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
-                });
+                yield return new FloatMenuOption(
+                    label, () =>
+                    {
+                        clickedThing.SetForbidden(false);
+                        Job job = CreateJob(clickedThing, container, 1);
+                        pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                    },
+                    priority: MenuOptionPriority.RescueOrCapture
+                );
             }
         }
     }
