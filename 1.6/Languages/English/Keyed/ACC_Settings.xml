@@ -12,6 +12,6 @@
     <ACC_Setting_Blacklist_label>Blacklist</ACC_Setting_Blacklist_label>
     <ACC_Setting_SelectAll_label>Select All</ACC_Setting_SelectAll_label>
     <ACC_Setting_AutoAdd_Btn_label>>>Auto</ACC_Setting_AutoAdd_Btn_label>
-    <ACC_Setting_AutoAdd_DialogMessage>This will scan for all apparel with functional capabilities (those that add extra Gizmo buttons) and add them to the Whitelist.\n\nNote: This may incorrectly include certain items (such as Shield belt and Grenadier armor); please review the Whitelist manually afterward.</ACC_Setting_AutoAdd_DialogMessage>
+    <ACC_Setting_AutoAdd_DialogMessage>This will scan all belt-layer equipment for functional capabilities (those that add extra Gizmo buttons) and add them to the Whitelist.\n\nNote: This process may incorrectly include or miss certain items; please review the Whitelist manually afterward.</ACC_Setting_AutoAdd_DialogMessage>
     <ACC_Setting_Message_AutoComplete>Auto-recognition complete. {0} items added to the Whitelist.</ACC_Setting_Message_AutoComplete>
 </LanguageData>

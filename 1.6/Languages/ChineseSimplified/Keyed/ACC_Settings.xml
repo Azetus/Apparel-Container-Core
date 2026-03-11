@@ -12,7 +12,7 @@
     <ACC_Setting_Blacklist_label>黑名单</ACC_Setting_Blacklist_label>
     <ACC_Setting_SelectAll_label>选择所有</ACC_Setting_SelectAll_label>
     <ACC_Setting_AutoAdd_Btn_label>>>自动</ACC_Setting_AutoAdd_Btn_label>
-    <ACC_Setting_AutoAdd_DialogMessage>此操作将扫描所有带有特殊功能的装备（添加了额外的Gizmo按钮）并加入白名单。\n注意：这可能会错误包含某些装备（比如护盾腰带和掷弹装甲），请在之后手动检查白名单。</ACC_Setting_AutoAdd_DialogMessage>
+    <ACC_Setting_AutoAdd_DialogMessage>此操作将扫描所有带有特殊功能的腰带类装备（添加了额外的Gizmo按钮）并加入白名单。\n注意：这可能会错误包含或遗漏某些装备，请在之后手动检查白名单。</ACC_Setting_AutoAdd_DialogMessage>
     <ACC_Setting_Message_AutoComplete>自动识别完成，已添加 {0} 件物品至白名单。</ACC_Setting_Message_AutoComplete>
     
 </LanguageData>
