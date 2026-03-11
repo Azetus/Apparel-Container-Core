@@ -58,12 +58,12 @@ public class Dialog_ContainerManagement<T, TP> : Window
             DropAllItems();
         }
         TooltipHandler.TipRegion(dropAllRect, "ACC_DropAll_Desc".Translate());
-        listing.GapLine(15f); 
+        listing.GapLine(8f); 
         listing.Gap(4f);
         // --- 滚动列表区 ---
         Rect scrollRect = listing.GetRect(inRect.height - listing.CurHeight - 50f);
         DrawScrollArea(scrollRect);
-        listing.GapLine(15f); 
+        listing.GapLine(10f); 
         if (listing.ButtonText("ACC_Btn_Close_label".Translate())) 
         {
             this.Close();
