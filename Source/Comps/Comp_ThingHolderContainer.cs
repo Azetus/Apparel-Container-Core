@@ -6,6 +6,7 @@ using UnityEngine;
 using Verse;
 using Verse.Sound;
 using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
+using static ACC_ApparelContainerCore.ACC_Utility.ACC_IconTexture;
 
 namespace ACC_ApparelContainerCore.Comps;
 
@@ -173,7 +174,12 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
         foreach (var g in base.CompGetWornGizmosExtra()) yield return g;
-        yield return CreateManagementGizmo();
+        if (AnyItem)
+        {
+            yield return CreateManagementGizmo();
+            yield return GetDropAllGizmo();
+        }
+        
     }
 
     public override IEnumerable<Gizmo> CompGetWornGizmosExtra()
@@ -204,6 +210,21 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
                 if (parent.MapHeld == null) return;
                 var window = new Dialog_ContainerManagement<T, TP>(this);
                 Find.WindowStack.Add(window);
+            }
+        };
+    }
+    // ----- 清空背包的Gizmo -----
+    protected Gizmo GetDropAllGizmo()
+    {
+        return new Command_Action
+        {
+            defaultLabel = "ACC_DropAll_label".Translate(),
+            defaultDesc = "ACC_DropAll_Desc".Translate(),
+            icon = VMM_DropAll_Icon,
+            action = () =>
+            {
+                if (parent.MapHeld is Map curMap)
+                    TryDropAll(curMap);
             }
         };
     }

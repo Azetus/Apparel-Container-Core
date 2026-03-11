@@ -11,4 +11,7 @@
     <ACC_Contents_label>內容</ACC_Contents_label>
     <ACC_Stats_Capacity_label>存儲容量</ACC_Stats_Capacity_label>
     <ACC_Stats_Capacity_desc>這個裝備能存儲的最大物品數量</ACC_Stats_Capacity_desc>
+
+    <ACC_DropAll_label>卸載全部</ACC_DropAll_label>
+    <ACC_DropAll_Desc>將容器內所有物品丟在地上</ACC_DropAll_Desc>
 </LanguageData>

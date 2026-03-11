@@ -11,4 +11,7 @@
     <ACC_Contents_label>Contents</ACC_Contents_label>
     <ACC_Stats_Capacity_label>Storage capacity</ACC_Stats_Capacity_label>
     <ACC_Stats_Capacity_desc>The maximum number of items this equipment can store.</ACC_Stats_Capacity_desc>
+
+    <ACC_DropAll_label>Unload all</ACC_DropAll_label>
+    <ACC_DropAll_Desc>Drop all items within the container onto the ground.</ACC_DropAll_Desc>
 </LanguageData>
