@@ -336,13 +336,11 @@ public static class ACC_SettingsWindowContents
                     // 不许套娃
                     if (def.comps.Any(c => c is CompProperties_ThingHolderContainer)) continue;
 
-                    bool hasVerb = !def.Verbs.NullOrEmpty();
-                    bool hasAbility = !def.apparel.abilities.NullOrEmpty();
-                    bool hasFunctionalComp = def.comps.Any(c =>
-                        c is CompProperties_Usable or CompProperties_ApparelReloadable or CompProperties_Rechargeable);
+                    bool isBeltLayer = UtilityChecker.IsThingDefBeltLayer(def);
+                    bool defCheck = UtilityChecker.IsDefFunctionalUtility(def);
                     bool modifiedGizmo = def.comps.Any(c => UtilityChecker.IsCompPotentiallyFunctional(c.compClass));
 
-                    if ((hasVerb || hasAbility || hasFunctionalComp || modifiedGizmo) && !settings.whitelist.Contains(def.defName))
+                    if (isBeltLayer && (defCheck || modifiedGizmo) && !settings.whitelist.Contains(def.defName))
                     {
                         settings.whitelist.Add(def.defName);
                         settings.blacklist.Remove(def.defName); // 确保不在黑名单冲突
