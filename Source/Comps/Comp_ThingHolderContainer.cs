@@ -28,9 +28,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     public bool CanAcceptMore => ContainerCount < Props.storageCapacity;
 
     public Pawn? Wearer => (base.ParentHolder as Pawn_ApparelTracker)?.pawn;
-
-    protected virtual StatCategoryDef GetCompPropCapacityStatCategory => StatCategoryDefOf.Apparel;
-
+    
     public override void PostPostMake()
     {
         base.PostPostMake();
@@ -179,7 +177,6 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
             yield return CreateManagementGizmo();
             yield return GetDropAllGizmo();
         }
-        
     }
 
     public override IEnumerable<Gizmo> CompGetWornGizmosExtra()
@@ -213,6 +210,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
             }
         };
     }
+
     // ----- 清空背包的Gizmo -----
     protected Gizmo GetDropAllGizmo()
     {
@@ -292,24 +290,6 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         return true;
     }
 
-    public override IEnumerable<StatDrawEntry> SpecialDisplayStats()
-    {
-        IEnumerable<StatDrawEntry> enumerable = base.SpecialDisplayStats();
-        if (enumerable != null)
-        {
-            foreach (var item in enumerable)
-                if (item != null)
-                    yield return item;
-        }
-
-        yield return new StatDrawEntry(
-            GetCompPropCapacityStatCategory,
-            "ACC_Stats_Capacity_label".Translate(),
-            Props.storageCapacity.ToString(),
-            "ACC_Stats_Capacity_desc".Translate(),
-            0
-        );
-    }
 
     public override string CompInspectStringExtra()
     {
