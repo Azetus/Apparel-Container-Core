@@ -29,51 +29,47 @@ public class Dialog_ContainerManagement<T, TP> : Window
 
     public override void DoWindowContents(Rect inRect)
     {
-        // --- 头部区域 ---
+        Listing_Standard listing = new Listing_Standard();
+        listing.Begin(inRect);
+
+        // 标题
         Text.Font = GameFont.Medium;
-        Rect titleRect = new Rect(0f, 0f, inRect.width, 35f);
-        // 显示父物品名称
-        Widgets.Label(titleRect, ownerComp.parent.LabelCap);
-
+        listing.Label(ownerComp.parent.LabelCap);
         Text.Font = GameFont.Small;
-        int currentCount = ownerComp.ContainerCount;
-        int maxCapacity = ownerComp.Props.storageCapacity;
 
-        Rect countRect = new Rect(0f, 40f, inRect.width, 25f);
-        if (currentCount >= maxCapacity) GUI.color = ColorLibrary.RedReadable;
-        Widgets.Label(countRect, $"{"ACC_Capacity_label".Translate()}: {currentCount} / {maxCapacity}");
+        // 容量显示 
+        listing.Gap(5f);
+        Rect countRect = listing.GetRect(25f);
+        if (ownerComp.ContainerCount >= ownerComp.Props.storageCapacity) GUI.color = ColorLibrary.RedReadable;
+        Widgets.Label(countRect, $"{"ACC_Capacity_label".Translate()}: {ownerComp.ContainerCount} / {ownerComp.Props.storageCapacity}");
         GUI.color = Color.white;
 
         // --- 分段进度条 ---
-        Rect barRect = new Rect(0f, 70f, inRect.width, 12f);
-        DrawSegmentedProgressBar(barRect, currentCount, maxCapacity);
-
-        Widgets.DrawLineHorizontal(0f, 95f, inRect.width);
-
-        // --- 滚动列表区 ---
-        Rect outRect = new Rect(0f, 105f, inRect.width, inRect.height - 160f);
-
-        // 包内的物品
-        IReadOnlyList<T> items = ownerComp.ContainedThings;
-        Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, items.Count * 40f);
-
-        Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
-        float num = 0f;
-        for (int i = 0; i < items.Count; i++)
+        Rect barRect = listing.GetRect(12f);
+        DrawSegmentedProgressBar(barRect, ownerComp.ContainerCount, ownerComp.Props.storageCapacity);
+        listing.Gap(4f); 
+        
+        // --- DropAll Btn ---
+        Rect actionRowRect = listing.GetRect(26f); 
+        float btnWidth = 100f; 
+        Rect dropAllRect = new Rect(actionRowRect.xMax - btnWidth, actionRowRect.y, btnWidth, actionRowRect.height);
+        if (Widgets.ButtonText(dropAllRect, "ACC_DropAll_label".Translate()))
         {
-            T thing = items[i];
-            DrawItemRow(new Rect(0f, num, viewRect.width, 36f), thing);
-            num += 40f;
+            DropAllItems();
         }
-
-        Widgets.EndScrollView();
-
-        // --- 底部按钮 ---
-        Rect closeRect = new Rect(inRect.width / 2f - 60f, inRect.height - 45f, 120f, 35f);
-        if (Widgets.ButtonText(closeRect, "ACC_Btn_Close_label".Translate()))
+        TooltipHandler.TipRegion(dropAllRect, "ACC_DropAll_Desc".Translate());
+        listing.GapLine(15f); 
+        listing.Gap(4f);
+        // --- 滚动列表区 ---
+        Rect scrollRect = listing.GetRect(inRect.height - listing.CurHeight - 50f);
+        DrawScrollArea(scrollRect);
+        listing.GapLine(15f); 
+        if (listing.ButtonText("ACC_Btn_Close_label".Translate())) 
         {
             this.Close();
         }
+        
+        listing.End();
     }
 
     private void DrawSegmentedProgressBar(Rect rect, int current, int max)
@@ -111,6 +107,31 @@ public class Dialog_ContainerManagement<T, TP> : Window
             DropAction(thing);
         }
     }
+    
+    private void DrawScrollArea(Rect outRect)
+    {
+        IReadOnlyList<T> items = ownerComp.ContainedThings;
+        
+        float rowHeight = 40f;
+        float viewHeight = items.Count * rowHeight;
+        Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, viewHeight);
+
+        Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
+
+        float currentY = 0f;
+        for (int i = 0; i < items.Count; i++)
+        {
+            T thing = items[i];
+            Rect rowRect = new Rect(0f, currentY, viewRect.width, rowHeight - 4f); 
+            if (currentY + rowHeight >= scrollPosition.y && currentY <= scrollPosition.y + outRect.height)
+            {
+                DrawItemRow(rowRect, thing);
+            }
+            currentY += rowHeight;
+        }
+
+        Widgets.EndScrollView();
+    }
 
     private void DropAction(T thing)
     {
@@ -123,4 +144,12 @@ public class Dialog_ContainerManagement<T, TP> : Window
             Messages.Message("ACC_Message_Dropped".Translate(thing.LabelShort), MessageTypeDefOf.CautionInput, false);
         }
     }
+
+    private void DropAllItems()
+    {
+        Map map = ownerComp.parent.MapHeld;
+        if(map != null)
+            ownerComp.TryDropAll(map);
+    }
+    
 }
