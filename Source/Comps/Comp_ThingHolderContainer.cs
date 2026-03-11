@@ -28,7 +28,12 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     public bool CanAcceptMore => ContainerCount < Props.storageCapacity;
 
     public Pawn? Wearer => (base.ParentHolder as Pawn_ApparelTracker)?.pawn;
-    
+
+
+    public virtual void Notify_InnerContainerContentsChanged()
+    {
+    }
+
     public override void PostPostMake()
     {
         base.PostPostMake();
@@ -52,8 +57,11 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         Action<T, int>? placedAction = null,
         Predicate<IntVec3>? nearPlaceValidator = null)
     {
-        return _innerContainer.TryDrop(thing, dropLoc, map, mode, out lastResultingThing, placedAction,
+        bool dropRes = _innerContainer.TryDrop(thing, dropLoc, map, mode, out lastResultingThing, placedAction,
             nearPlaceValidator);
+        if (dropRes)
+            Notify_InnerContainerContentsChanged();
+        return dropRes;
     }
 
     public bool TryDrop(
@@ -66,8 +74,11 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         Action<T, int> placedAction = null,
         Predicate<IntVec3> nearPlaceValidator = null)
     {
-        return _innerContainer.TryDrop(thing, dropLoc, map, mode, count, out resultingThing, placedAction,
+        bool dropRes = _innerContainer.TryDrop(thing, dropLoc, map, mode, count, out resultingThing, placedAction,
             nearPlaceValidator);
+        if (dropRes)
+            Notify_InnerContainerContentsChanged();
+        return dropRes;
     }
 
     public int TryLoadInto(T item, int count, bool canMergeWithExistingStacks = false)
@@ -84,6 +95,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
 
         if (actuallyAdded > 0)
         {
+            Notify_InnerContainerContentsChanged();
             if (thingToLoad.def.soundPickup != null && Wearer != null)
                 thingToLoad.def.soundPickup.PlayOneShot(new TargetInfo(Wearer.Position, Wearer.Map));
             Wearer?.MapHeld?.resourceCounter.UpdateResourceCounts();
@@ -97,15 +109,22 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         }
     }
 
-    public void TryDropAll(Map map)
+    public bool TryDropAll(Map map)
     {
         // 如果在地图上，则把东西全部吐出来
         if (map != null)
         {
             IntVec3 dropPos = Wearer?.PositionHeld ?? parent.PositionHeld;
             if (_innerContainer != null)
-                _innerContainer.TryDropAll(dropPos, map, ThingPlaceMode.Near);
+            {
+                bool dropAllRes = _innerContainer.TryDropAll(dropPos, map, ThingPlaceMode.Near);
+                if (dropAllRes)
+                    Notify_InnerContainerContentsChanged();
+                return dropAllRes;
+            }
         }
+
+        return false;
     }
 
     public override void PostDestroy(DestroyMode mode, Map previousMap)
@@ -117,6 +136,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
             TryDropAll(previousMap);
         else
             _innerContainer.ClearAndDestroyContents(DestroyMode.Vanish);
+        Notify_InnerContainerContentsChanged();
     }
 
     /// <summary>
@@ -259,13 +279,13 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     /// NOTE: "Verb.caster" needs to be reassigned here to ensure that the Verb.caster of the 
     /// contained item correctly points to the equipper.
     /// </remarks>
-    protected virtual Gizmo ProcessProxyGizmo(Gizmo gizmo, ThingWithComps ownerItem, int index)
+    protected virtual Gizmo ProcessProxyGizmo(Gizmo gizmo,  int index)
     {
         // 仅处理命令类 Gizmo (Command)
         if (gizmo is Command command)
         {
             // 区分 Label，防止 UI 合并图标
-            command.defaultLabel = $"{ownerItem.LabelCapNoCount} [{index}]";
+            command.defaultLabel += $"[{index}]";
             command.defaultDesc = parent.LabelShort + "\n\n" + command.defaultDesc;
             command.groupable = false;
             // 核心：处理 Verb.caster关联

@@ -44,20 +44,74 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
                     foreach (Gizmo gizmo in comp.CompGetWornGizmosExtra())
                     {
                         if (ShouldShowGizmo(gizmo))
-                            yield return ProcessProxyGizmo(gizmo, twc, currentIndex);
+                            yield return ProcessProxyGizmo(gizmo, currentIndex);
                     }
                 }
             }
+
             // 处理技能，比如主脑节点
+            int ablCounter = 1;
             foreach (Ability abl in subItem.AllAbilitiesForReading ?? Enumerable.Empty<Ability>())
             {
                 abl.pawn = Wearer;
                 abl.verb.caster = Wearer;
+                int curAblIndex = ablCounter++;
                 foreach (Gizmo gizmo in abl.GetGizmos() ?? Enumerable.Empty<Gizmo>())
                 {
-                    yield return gizmo;
+                    yield return ProcessProxyGizmo(gizmo, curAblIndex);
                 }
             }
+        }
+    }
+
+    // 处理 ability tick
+    private bool _AbilitiesCachedDirty = true;
+
+    private List<Ability> cachedInnerAbilities = new List<Ability>();
+
+    public override void Notify_InnerContainerContentsChanged()
+    {
+        base.Notify_InnerContainerContentsChanged();
+        _AbilitiesCachedDirty = true;
+    }
+
+    public List<Ability> AllInnerAbilities
+    {
+        get
+        {
+            if (_AbilitiesCachedDirty)
+            {
+                cachedInnerAbilities.Clear();
+                if (InnerContainer != null)
+                {
+                    for (int i = 0; i < InnerContainer.Count; i++)
+                    {
+                        var subAbilities = InnerContainer[i].AllAbilitiesForReading;
+                        var abilitiesList = subAbilities?.ToList() ?? new List<Ability>();
+                        if (abilitiesList.Count > 0)
+                            cachedInnerAbilities.AddRange(abilitiesList);
+                    }
+                }
+
+                _AbilitiesCachedDirty = false;
+            }
+
+            return cachedInnerAbilities;
+        }
+    }
+
+    public override void CompTick()
+    {
+        base.CompTick();
+        // Pawn? wearer = Wearer;
+        // if (wearer == null) return;
+        var abilities = AllInnerAbilities;
+        for (int i = 0; i < abilities.Count; i++)
+        {
+            Ability abl = abilities[i];
+            // abl.pawn = wearer;
+            // abl.verb.caster = wearer;
+            abl.AbilityTick();
         }
     }
 }
