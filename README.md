@@ -18,23 +18,41 @@
 
 ## 如何使用：
 
-1. 编写你的`ThingDef` xml文件，确保这个`Def`的`thingClass`是`Apparel`或是其子类。
-```xml
-<thingClass>Apparel</thingClass>
-```
-2. 然后在`ThingDef`的`comps`标签内引用本Mod添加的`CompProperties_GenericPackForApparel`，并在`storageCapacity`标签内填入容器的最大容量。
-```xml
+1. 在你的 Mod 的 `About.xml` 中将本 Mod 添加为依赖。并设置加载顺序。
+   ```xml
+   <modDependencies>
+       <li>
+           <packageId>Aliza.ApparelContainerCore</packageId>
+           <displayName>ApparelContainerCore</displayName>
+           <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3682926769</steamWorkshopUrl>
+           <downloadUrl>https://github.com/Azetus/Apparel-Container-Core</downloadUrl>
+       </li>
+   </modDependencies>
+   ```
+   ```xml
+   <loadAfter>
+       <li>Ludeon.RimWorld</li>
+       <li>Aliza.ApparelContainerCore</li>
+   </loadAfter>
+   ```
 
-<comps>
-    <li Class="ACC_ApparelContainerCore.Comps.Props.CompProperties_GenericPackForApparel">
-        <storageCapacity>3</storageCapacity>
-    </li>
-</comps>
-```
+2. 编写你的`ThingDef` xml文件，确保这个`Def`的`thingClass`是`Apparel`或是其子类。
+   ```xml 
+   <thingClass>Apparel</thingClass>
+   ```
+
+3. 然后在`ThingDef`的`comps`标签内引用本Mod添加的`CompProperties_GenericPackForApparel`，并在`storageCapacity`标签内填入容器的最大容量。
+   ```xml
+   <comps>
+      <li Class="ACC_ApparelContainerCore.Comps.Props.CompProperties_GenericPackForApparel">
+         <storageCapacity>3</storageCapacity>
+      </li>
+   </comps>
+   ```
 
 # Apparel-Container-Core
 
-A framework library based on `ThingComp` that allows apparel to host independent storage containers.
+A RimWorld framework library based on `ThingComp` that allows apparel to host independent storage containers.
 
 ## Core Features:
 
@@ -42,24 +60,46 @@ A framework library based on `ThingComp` that allows apparel to host independent
 
 **Inventory Management UI:** A UI panel for managing the internal inventory of the apparel.
 
-**Gizmo Proxying:** Utility equipment (such as Low-shield pack, Psychic shock lance, etc.) can be stored in pouches and used directly from the pawn's command bar as if they were equipped normally.
+**Gizmo Proxying:** Utility equipment (such as Low-shield pack, Psychic shock lance, etc.) can be stored in pouches and used directly from the pawn's
+command bar as if they were equipped normally.
 
 **Whitelist & Blacklist:** Whitelists and blacklists for storable items can be adjusted in the mod settings.
 
 ## Compatibility:
+
 Theoretically compatible with most mod items, though Gizmo proxying may not function for certain equipment with unique or non-standard logic.
 
-## How to use
-1. Define your `ThingDef` XML: Ensure that the `thingClass` of your `Def` is `Apparel` or one of its subclasses.
-```xml
-<thingClass>Apparel</thingClass>
-```
-2. Add the Component: Reference the `CompProperties_GenericPackForApparel` added by this mod within the `comps` node of your `ThingDef`. Then, specify the maximum container capacity in the `storageCapacity` field.
-```xml
+## How to use:
 
-<comps>
-    <li Class="ACC_ApparelContainerCore.Comps.Props.CompProperties_GenericPackForApparel">
-        <storageCapacity>3</storageCapacity>
-    </li>
-</comps>
-```
+1. Add this mod as a dependency in your mod's `About.xml` and ensure the correct Load Order.
+   ```xml
+   <modDependencies>
+       <li>
+           <packageId>Aliza.ApparelContainerCore</packageId>
+           <displayName>ApparelContainerCore</displayName>
+           <steamWorkshopUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=3682926769</steamWorkshopUrl>
+           <downloadUrl>https://github.com/Azetus/Apparel-Container-Core</downloadUrl>
+       </li>
+   </modDependencies>
+   ```
+   ```xml
+   <loadAfter>
+       <li>Ludeon.RimWorld</li>
+       <li>Aliza.ApparelContainerCore</li>
+   </loadAfter>
+   ```
+
+2. Define your `ThingDef` XML: Ensure that the `thingClass` of your `Def` is `Apparel` or one of its subclasses.
+   ```xml
+   <thingClass>Apparel</thingClass>
+   ```
+
+3. Add the Component: Reference the `CompProperties_GenericPackForApparel` added by this mod within the `comps` node of your `ThingDef`. Then, specify
+   the maximum container capacity in the `storageCapacity` field.
+   ```xml
+   <comps>
+       <li Class="ACC_ApparelContainerCore.Comps.Props.CompProperties_GenericPackForApparel">
+           <storageCapacity>3</storageCapacity>
+       </li>
+   </comps>
+   ```
