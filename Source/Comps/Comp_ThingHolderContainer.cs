@@ -217,11 +217,24 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     // ----- 打开背包管理窗口 -----
     protected virtual Gizmo CreateManagementGizmo()
     {
+        Texture iconTex = Widgets.GetIconFor(
+            parent,
+            new Vector2(75f, 75f),
+            parent.def.defaultPlacingRot,
+            stackOfOne: true,
+            out _,
+            out _,
+            out _,
+            out Color iconColor,
+            out _
+        );
         return new Command_Action
         {
             defaultLabel = parent.def.label,
             defaultDesc = "ACC_ManagePackGizmo_defaultDesc".Translate(),
-            icon = parent.def.uiIcon,
+            icon = iconTex,
+            defaultIconColor = iconColor,
+            groupable = false,
             action = () =>
             {
                 if (parent.MapHeld == null) return;
@@ -239,6 +252,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
             defaultLabel = "ACC_DropAll_label".Translate(),
             defaultDesc = "ACC_DropAll_Desc".Translate(),
             icon = VMM_DropAll_Icon,
+            groupable = false,
             action = () =>
             {
                 if (parent.MapHeld is Map curMap)
@@ -279,7 +293,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     /// NOTE: "Verb.caster" needs to be reassigned here to ensure that the Verb.caster of the 
     /// contained item correctly points to the equipper.
     /// </remarks>
-    protected virtual Gizmo ProcessProxyGizmo(Gizmo gizmo,  int index)
+    protected virtual Gizmo ProcessProxyGizmo(Gizmo gizmo, int index)
     {
         // 仅处理命令类 Gizmo (Command)
         if (gizmo is Command command)
