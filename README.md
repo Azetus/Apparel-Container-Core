@@ -35,13 +35,15 @@
        <li>Aliza.ApparelContainerCore</li>
    </loadAfter>
    ```
-
-2. 编写你的`ThingDef` xml文件，确保这个`Def`的`thingClass`是`Apparel`或是其子类。
+2. 编写你的 `ThingDef` xml文件，确保这个`Def`的`thingClass`是`Apparel`或是其子类。
    ```xml 
    <thingClass>Apparel</thingClass>
    ```
-
-3. 然后在`ThingDef`的`comps`标签内引用本Mod添加的`CompProperties_GenericPackForApparel`，并在`storageCapacity`标签内填入容器的最大容量。
+3. 设置 `ThingDef` 的 `tickerType` 标签为 `Normal`，以确保容器内装备的`Ability`能够正常冷却。
+   ```xml
+   <tickerType>Normal</tickerType>
+   ```
+4. 然后在`ThingDef`的`comps`标签内引用本Mod添加的`CompProperties_GenericPackForApparel`，并在`storageCapacity`标签内填入容器的最大容量。
    ```xml
    <comps>
       <li Class="ACC_ApparelContainerCore.Comps.Props.CompProperties_GenericPackForApparel">
@@ -88,13 +90,15 @@ Theoretically compatible with most mod items, though Gizmo proxying may not func
        <li>Aliza.ApparelContainerCore</li>
    </loadAfter>
    ```
-
 2. Define your `ThingDef` XML: Ensure that the `thingClass` of your `Def` is `Apparel` or one of its subclasses.
    ```xml
    <thingClass>Apparel</thingClass>
    ```
-
-3. Add the Component: Reference the `CompProperties_GenericPackForApparel` added by this mod within the `comps` node of your `ThingDef`. Then, specify
+3. Set the `tickerType` tag of your `ThingDef` to `Normal` to ensure that the `Ability` of the equipment inside the container can cool down properly.
+   ```xml
+   <tickerType>Normal</tickerType>
+   ```
+4. Add the Component: Reference the `CompProperties_GenericPackForApparel` added by this mod within the `comps` node of your `ThingDef`. Then, specify
    the maximum container capacity in the `storageCapacity` field.
    ```xml
    <comps>
