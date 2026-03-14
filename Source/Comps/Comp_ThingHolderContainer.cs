@@ -351,6 +351,15 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         return strBuilder.ToString().TrimEnd();
     }
 
+    public override void CompTick()
+    {
+        base.CompTick();
+        if (_innerContainer != null)
+        {
+            _innerContainer.DoTick(); 
+        }
+    }
+
     public override void PostExposeData()
     {
         base.PostExposeData();
