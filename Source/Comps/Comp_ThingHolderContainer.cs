@@ -364,5 +364,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     {
         base.PostExposeData();
         Scribe_Deep.Look(ref _innerContainer, "ACC_InnerContainer", this);
+        if (_innerContainer == null)
+            _innerContainer = new ThingOwner<T>(this, false, LookMode.Deep);
     }
 }
