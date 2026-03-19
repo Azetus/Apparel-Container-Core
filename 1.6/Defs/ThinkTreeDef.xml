@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <ThinkTreeDef>
+        <defName>ACC_GenericPackForApparel_ReloadInside</defName>
+        <insertTag>Humanlike_PreMain</insertTag>
+        <insertPriority>10</insertPriority>
+        <thinkRoot Class="ACC_ApparelContainerCore.JobGivers.JobGiver_GenericPackForApparel_ReloadInside" />
+    </ThinkTreeDef>
+</Defs>
