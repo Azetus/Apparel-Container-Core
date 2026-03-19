@@ -59,8 +59,8 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
                 List<FloatMenuOption> list = new List<FloatMenuOption>();
                 if (Wearer is Pawn pawn)
                 {
-                    var allReloadableCompsEnumerable = GetReloadableCompsInContainer(pawn);
-                    var allReloadableComps = allReloadableCompsEnumerable.ToList();
+                    var allReloadableCompsEnumerable = GetCompApparelReloadableInGenericPackForApparel(pawn);
+                    var allReloadableComps = allReloadableCompsEnumerable.Where(comp => comp.NeedsReload(true)).ToList();
                     
                     if (allReloadableComps.Any())
                     {

@@ -3,6 +3,7 @@ using ACC_ApparelContainerCore.Comps.Props;
 using RimWorld;
 using RimWorld.Utility;
 using Verse;
+using static ACC_ApparelContainerCore.ACC_Utility.ReloadUtils;
 
 namespace ACC_ApparelContainerCore.FloatMenuOptions;
 
@@ -12,25 +13,13 @@ public class FloatMenuOptionProvider_GenericPackForApparel_ReloadInside: FloatMe
     protected override IEnumerable<IReloadableComp> GetReloadablesUsingAmmoInsideContainer(Pawn pawn, Thing clickedThing)
     {
         if (pawn.apparel == null) yield break;
-
-        // 检测身上穿着的服装
-        foreach (Apparel item in pawn.apparel.WornApparel)
+        var allReloadableComps = GetCompApparelReloadableInGenericPackForApparel(pawn);
+        
+        foreach (var reloadableComp in allReloadableComps)
         {
-            // 检测服装是否作存在 Comp_ThingHolderContainer ，并扫描其内部物品
-            var containerComp = item.TryGetComp<Comp_GenericPackForApparel>();
-            if (containerComp != null)
+            if (reloadableComp != null && clickedThing.def == reloadableComp.AmmoDef)
             {
-                foreach (Thing innerThing in containerComp.GetDirectlyHeldThings())
-                {
-                    if (innerThing is ThingWithComps innerWithComps)
-                    {
-                        IReloadableComp? innerRel = innerWithComps.TryGetComp<CompApparelReloadable>();
-                        if (innerRel != null && clickedThing.def == innerRel.AmmoDef)
-                        {
-                            yield return innerRel;
-                        }
-                    }
-                }
+                yield return reloadableComp;
             }
         }
     }

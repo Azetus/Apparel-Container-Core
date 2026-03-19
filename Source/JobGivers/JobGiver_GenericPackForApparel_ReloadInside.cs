@@ -3,6 +3,7 @@ using ACC_ApparelContainerCore.Comps.Props;
 using RimWorld;
 using RimWorld.Utility;
 using Verse;
+using static ACC_ApparelContainerCore.ACC_Utility.ReloadUtils;
 
 namespace ACC_ApparelContainerCore.JobGivers;
 
@@ -14,23 +15,13 @@ public class JobGiver_GenericPackForApparel_ReloadInside : JobGiver_ReloadInside
 
         if (pawn.apparel != null)
         {
-            foreach (Apparel item in pawn.apparel.WornApparel)
+            
+            var allReloadableComps = GetCompApparelReloadableInGenericPackForApparel(pawn);
+            foreach (var reloadableComp in allReloadableComps)
             {
-                // 检测服装是否存在 Comp_ThingHolderContainer ，并扫描其内部物品
-                var containerComp = item.TryGetComp<Comp_GenericPackForApparel>();
-                if (containerComp != null)
+                if (reloadableComp != null && reloadableComp.NeedsReload(allowForcedReload))
                 {
-                    foreach (Thing innerThing in containerComp.GetDirectlyHeldThings())
-                    {
-                        if (innerThing is ThingWithComps innerWithComps)
-                        {
-                            IReloadableComp? compApparelReloadable = innerWithComps.TryGetComp<CompApparelReloadable>();
-                            if (compApparelReloadable != null && compApparelReloadable.NeedsReload(allowForcedReload))
-                            {
-                                return compApparelReloadable;
-                            }
-                        }
-                    }
+                    return reloadableComp;
                 }
             }
         }
