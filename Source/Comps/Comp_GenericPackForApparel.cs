@@ -64,7 +64,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
                     
                     if (allReloadableComps.Any())
                     {
-                        list.Add(new FloatMenuOption("补充所有消耗品", () => { TryGenerateReloadJobs(pawn, allReloadableComps); }));
+                        list.Add(new FloatMenuOption("ACC_ReloadAll_label".Translate(), () => { TryGenerateReloadJobs(pawn, allReloadableComps); }));
                     }
                 }
                 return list;

@@ -14,4 +14,6 @@
 
     <ACC_DropAll_label>卸载全部</ACC_DropAll_label>
     <ACC_DropAll_Desc>将容器内所有物品丢在地上</ACC_DropAll_Desc>
+    
+    <ACC_ReloadAll_label>重新装填所有消耗品</ACC_ReloadAll_label>
 </LanguageData>

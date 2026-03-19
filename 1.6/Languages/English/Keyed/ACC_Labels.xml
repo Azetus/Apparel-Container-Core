@@ -14,4 +14,6 @@
 
     <ACC_DropAll_label>Unload all</ACC_DropAll_label>
     <ACC_DropAll_Desc>Drop all items within the container onto the ground.</ACC_DropAll_Desc>
+
+    <ACC_ReloadAll_label>Reload all consumables</ACC_ReloadAll_label>
 </LanguageData>
