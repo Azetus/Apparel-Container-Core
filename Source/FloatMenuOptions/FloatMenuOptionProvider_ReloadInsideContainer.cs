@@ -18,6 +18,10 @@ public abstract class FloatMenuOptionProvider_ReloadInsideContainer<TThing, TPro
     public override bool Undrafted => true;
 
     public override bool Multiselect => false;
+    
+    public override bool MechanoidCanDo => true;
+    
+    public override bool RequiresManipulation => true;
 
     public override IEnumerable<FloatMenuOption> GetOptionsFor(Thing clickedThing, FloatMenuContext context)
     {
@@ -70,29 +74,5 @@ public abstract class FloatMenuOptionProvider_ReloadInsideContainer<TThing, TPro
         }
     }
 
-    protected virtual IEnumerable<IReloadableComp> GetReloadablesUsingAmmoInsideContainer(Pawn pawn, Thing clickedThing)
-    {
-        if (pawn.apparel == null) yield break;
-
-        // 检测身上穿着的服装
-        foreach (Apparel item in pawn.apparel.WornApparel)
-        {
-            // 检测服装是否作存在 Comp_ThingHolderContainer ，并扫描其内部物品
-            var containerComp = item.TryGetComp<TComp>();
-            if (containerComp != null)
-            {
-                foreach (Thing innerThing in containerComp.GetDirectlyHeldThings())
-                {
-                    if (innerThing is ThingWithComps innerWithComps)
-                    {
-                        IReloadableComp? innerRel = innerWithComps.TryGetComp<CompApparelReloadable>();
-                        if (innerRel != null && clickedThing.def == innerRel.AmmoDef)
-                        {
-                            yield return innerRel;
-                        }
-                    }
-                }
-            }
-        }
-    }
+    protected abstract IEnumerable<IReloadableComp> GetReloadablesUsingAmmoInsideContainer(Pawn pawn, Thing clickedThing);
 }

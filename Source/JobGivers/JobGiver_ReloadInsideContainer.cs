@@ -43,31 +43,5 @@ public abstract class JobGiver_ReloadInsideContainer<TThing, TProps, TComp> : Th
         return JobGiver_Reload.MakeReloadJob(reloadableComp, list);
     }
 
-    public static IReloadableComp? FindSomeReloadableComponentInContainer(Pawn pawn, bool allowForcedReload = false)
-    {
-
-        if (pawn.apparel != null)
-        {
-            foreach (Apparel item in pawn.apparel.WornApparel)
-            {
-                // 检测服装是否存在 Comp_ThingHolderContainer ，并扫描其内部物品
-                var containerComp = item.TryGetComp<TComp>();
-                if (containerComp != null)
-                {
-                    foreach (Thing innerThing in containerComp.GetDirectlyHeldThings())
-                    {
-                        if (innerThing is ThingWithComps innerWithComps)
-                        {
-                            IReloadableComp? compApparelReloadable = innerWithComps.TryGetComp<CompApparelReloadable>();
-                            if (compApparelReloadable != null && compApparelReloadable.NeedsReload(allowForcedReload))
-                            {
-                                return compApparelReloadable;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
+    protected abstract IReloadableComp? FindSomeReloadableComponentInContainer(Pawn pawn, bool allowForcedReload = false);
 }
