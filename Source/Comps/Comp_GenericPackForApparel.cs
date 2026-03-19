@@ -1,7 +1,11 @@
-﻿using ACC_ApparelContainerCore.Comps.Props;
+﻿using ACC_ApparelContainerCore.Commands;
+using ACC_ApparelContainerCore.Comps.Props;
+using ACC_ApparelContainerCore.Dialog;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
+using static ACC_ApparelContainerCore.ACC_Utility.ReloadUtils;
 
 namespace ACC_ApparelContainerCore.Comps;
 
@@ -20,6 +24,54 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
         if (thingToLoad == this.parent) return false;
         return IsFunctionalUtility<Apparel>(thingToLoad);
     }
+
+    /**
+     * 重写 CreateManagementGizmo 添加右键重装填配件
+     */
+    protected override Gizmo CreateManagementGizmo()
+    {
+        Texture iconTex = Widgets.GetIconFor(
+            parent,
+            new Vector2(75f, 75f),
+            parent.def.defaultPlacingRot,
+            stackOfOne: true,
+            out _,
+            out _,
+            out _,
+            out Color iconColor,
+            out _
+        );
+        return new Command_ExtraFloatMenu
+        {
+            defaultLabel = parent.def.label,
+            defaultDesc = "ACC_ManagePackGizmo_defaultDesc".Translate(),
+            icon = iconTex,
+            defaultIconColor = iconColor,
+            groupable = false,
+            action = () =>
+            {
+                if (parent.MapHeld == null) return;
+                var window = new Dialog_ContainerManagement<Apparel, CompProperties_GenericPackForApparel>(this);
+                Find.WindowStack.Add(window);
+            },
+            floatMenuOptions = () =>
+            {
+                List<FloatMenuOption> list = new List<FloatMenuOption>();
+                if (Wearer is Pawn pawn)
+                {
+                    var allReloadableCompsEnumerable = GetReloadableCompsInContainer(pawn);
+                    var allReloadableComps = allReloadableCompsEnumerable.ToList();
+                    
+                    if (allReloadableComps.Any())
+                    {
+                        list.Add(new FloatMenuOption("补充所有消耗品", () => { TryGenerateReloadJobs(pawn, allReloadableComps); }));
+                    }
+                }
+                return list;
+            }
+        };
+    }
+
 
     /**
      * 在这里代理容器内物品的Gizmo，在代理之前需要调用 SetOwner
