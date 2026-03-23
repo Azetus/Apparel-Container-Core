@@ -2,6 +2,7 @@
 using ACC_ApparelContainerCore.Comps.Props;
 using ACC_ApparelContainerCore.Dialog;
 using RimWorld;
+using RimWorld.Utility;
 using UnityEngine;
 using Verse;
 using static ACC_ApparelContainerCore.ACC_Utility.UtilityChecker;
@@ -57,9 +58,14 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
             floatMenuOptions = () =>
             {
                 List<FloatMenuOption> list = new List<FloatMenuOption>();
-                if (Wearer is Pawn pawn)
+                if (Wearer is Pawn pawn && this.ContainedThings != null)
                 {
-                    var allReloadableCompsEnumerable = GetCompApparelReloadableInGenericPackForApparel(pawn);
+                    // 仅装填当前容器内的物品
+                    var allReloadableCompsEnumerable = this.ContainedThings
+                        .Where(apl => apl != null)
+                        .Select<ThingWithComps, IReloadableComp>(inner => inner.TryGetComp<CompApparelReloadable>())
+                        .Where(rel => rel != null)
+                        .ToList();
                     var allReloadableComps = allReloadableCompsEnumerable.Where(comp => comp.NeedsReload(true)).ToList();
                     
                     if (allReloadableComps.Any())
