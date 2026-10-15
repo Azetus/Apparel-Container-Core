@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <JobDef>
+        <defName>ACC_Job_PutInGenericPackForApparel</defName>
+        <driverClass>ACC_ApparelContainerCore.JobDrivers.JobDriver_PutInGenericPackForApparel</driverClass>
+        <reportString>loading TargetA into TargetB.</reportString>
+        <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+    </JobDef>
+</Defs>
