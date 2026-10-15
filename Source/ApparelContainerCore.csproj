@@ -19,6 +19,12 @@
         </PackageReference>
         <PackageReference Include="Krafs.Rimworld.Ref" Version="1.7.4977-alpha.2" />
         <Publicize Include="Assembly-CSharp"/>
+        <!-- Keep notification overrides and the event backing field at their original visibility. -->
+        <DoNotPublicize Include="Assembly-CSharp:Verse.ThingOwner.NotifyAdded" />
+        <DoNotPublicize Include="Assembly-CSharp:Verse.ThingOwner.NotifyRemoved" />
+        <DoNotPublicize Include="Assembly-CSharp:Verse.ThingOwner`1.NotifyAdded" />
+        <DoNotPublicize Include="Assembly-CSharp:Verse.ThingOwner`1.NotifyRemoved" />
+        <DoNotPublicize Include="Assembly-CSharp:Verse.ThingOwner.OnContentsChanged" />
     </ItemGroup>
 
     <Target Name="BundleMod" AfterTargets="Build" Condition="'$(Configuration)' == 'Release' and '$(DesignTimeBuild)' != 'true'">

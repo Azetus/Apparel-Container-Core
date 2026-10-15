@@ -14,7 +14,8 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     where T : Thing
     where TP : CompProperties_ThingHolderContainer
 {
-    private ThingOwner<T> _innerContainer;
+    private ContainerThingOwner<T> _innerContainer;
+    private ContainerThingOwner<T>? subscribedContainer;
     public TP Props => (TP)this.props;
 
     protected List<T> InnerContainer => _innerContainer.InnerListForReading;
@@ -37,8 +38,19 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     public override void PostPostMake()
     {
         base.PostPostMake();
-        if (_innerContainer == null)
-            _innerContainer = new ThingOwner<T>(this, false, LookMode.Deep);
+        InitializeContainer();
+        Notify_InnerContainerContentsChanged();
+    }
+
+    private void InitializeContainer()
+    {
+        _innerContainer ??= new ContainerThingOwner<T>(this);
+        if (ReferenceEquals(subscribedContainer, _innerContainer)) return;
+
+        if (subscribedContainer != null)
+            subscribedContainer.OnContentsChanged -= Notify_InnerContainerContentsChanged;
+        subscribedContainer = _innerContainer;
+        subscribedContainer.OnContentsChanged += Notify_InnerContainerContentsChanged;
     }
 
     public ThingOwner GetDirectlyHeldThings() => _innerContainer;
@@ -59,8 +71,6 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     {
         bool dropRes = _innerContainer.TryDrop(thing, dropLoc, map, mode, out lastResultingThing, placedAction,
             nearPlaceValidator);
-        if (dropRes)
-            Notify_InnerContainerContentsChanged();
         return dropRes;
     }
 
@@ -76,8 +86,6 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     {
         bool dropRes = _innerContainer.TryDrop(thing, dropLoc, map, mode, count, out resultingThing, placedAction,
             nearPlaceValidator);
-        if (dropRes)
-            Notify_InnerContainerContentsChanged();
         return dropRes;
     }
 
@@ -95,7 +103,6 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
 
         if (actuallyAdded > 0)
         {
-            Notify_InnerContainerContentsChanged();
             if (thingToLoad.def.soundPickup != null && Wearer != null)
                 thingToLoad.def.soundPickup.PlayOneShot(new TargetInfo(Wearer.Position, Wearer.Map));
             Wearer?.MapHeld?.resourceCounter.UpdateResourceCounts();
@@ -118,8 +125,6 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
             if (_innerContainer != null)
             {
                 bool dropAllRes = _innerContainer.TryDropAll(dropPos, map, ThingPlaceMode.Near);
-                if (dropAllRes)
-                    Notify_InnerContainerContentsChanged();
                 return dropAllRes;
             }
         }
@@ -262,36 +267,25 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     }
 
     /// <summary>
-    /// 注意：在使用此方法进行身份伪装 (owner Proxy) 时，必须确保此容器的泛型类型 <typeparamref name="T"/> 
-    /// 与目标持有者 (newTarget) 内部预期的容器类型完全匹配。
-    /// 例如：若 newTarget 为 Pawn_ApparelTracker，则 T 必须派生自 Apparel。
-    /// 类型不匹配会导致 Pawn_ApparelTracker 在处理物品移除 (NotifyRemoved) 时触发 InvalidCastException。
+    /// 更新功能查询使用的代理持有者；内容增删通知仍交给真实容器。
     /// </summary>
     /// <remarks>
-    /// Note: When using this method for owner proxying, the generic type <typeparamref name="T"/> 
-    /// MUST be strictly compatible with the underlying collection type expected by the 'newTarget'.
-    /// Example: If 'newTarget' is a Pawn_ApparelTracker, T MUST derive from Apparel.
-    /// Mismatched types will trigger an InvalidCastException during the target's internal 
-    /// notification logic (e.g., NotifyRemoved) when an item is dropped or destroyed.
+    /// Storage notifications must not treat contained items as newly worn or removed apparel.
     /// </remarks>
     protected virtual void SetOwner(ThingOwner owner, IThingHolder newTarget)
     {
-        // 将 ThingOwner 里的 owner 字段设置为 newTarget
-        owner.owner = newTarget;
+        if (owner is ContainerThingOwner<T> container)
+            container.SetProxyOwner(newTarget);
+        else
+            owner.owner = newTarget;
     }
 
 
     /// <summary>
-    /// 调用此方法之前需要对 ownerItem 调用 SetOwner
-    /// Rimworld 会对 Label 等字段相同的 Gizmo 进行合并，必须对 Label 加以修改，否则装载多个同类物品时只会显示一个 Gizmo
-    /// NOTE：在此处需要对 "Verb.caster" 重新赋值，让容器内物品的 Verb.caster 指向装备者
+    /// 禁止合并代理命令；使用者绑定由容器生命周期维护。
     /// </summary>
     /// <remarks>
-    /// SetOwner must be called on ownerItem before invoking this method.
-    /// Since RimWorld merges Gizmos with identical Labels, the Label must be modified; 
-    /// otherwise, only one Gizmo will be displayed when multiple items of the same type are equipped.
-    /// NOTE: "Verb.caster" needs to be reassigned here to ensure that the Verb.caster of the 
-    /// contained item correctly points to the equipper.
+    /// Proxy commands remain separate even when multiple contained items have the same label.
     /// </remarks>
     protected virtual Gizmo ProcessProxyGizmo(Gizmo gizmo, int index)
     {
@@ -300,9 +294,6 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         {
             // 区分 Label，防止 UI 合并图标
             command.groupable = false;
-            // 核心：处理 Verb.caster关联
-            if (command is Command_VerbTarget { verb: not null } verbCommand)
-                verbCommand.verb.caster = this.Wearer;
         }
 
         return gizmo;
@@ -364,7 +355,12 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     {
         base.PostExposeData();
         Scribe_Deep.Look(ref _innerContainer, "ACC_InnerContainer", this);
-        if (_innerContainer == null)
-            _innerContainer = new ThingOwner<T>(this, false, LookMode.Deep);
+        InitializeContainer();
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            // Child apparel may overwrite its casters later in PostLoadInit.
+            // Rebind after the entire load event, before normal pawn jobs resume.
+            LongEventHandler.ExecuteWhenFinished(Notify_InnerContainerContentsChanged);
+        }
     }
 }

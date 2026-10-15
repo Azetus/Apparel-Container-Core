@@ -1,5 +1,6 @@
 ﻿using ACC_ApparelContainerCore.Commands;
 using ACC_ApparelContainerCore.Comps.Props;
+using ACC_ApparelContainerCore.ACC_Utility;
 using ACC_ApparelContainerCore.Dialog;
 using RimWorld;
 using RimWorld.Utility;
@@ -80,21 +81,17 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
 
 
     /**
-     * 在这里代理容器内物品的Gizmo，在代理之前需要调用 SetOwner
+     * 只转发 Gizmo，使用者绑定由容器生命周期维护。
      */
     protected override IEnumerable<Gizmo> GetExtraGizmosInContainer()
     {
         // 转发子物品的 Gizmo
         if (GetDirectlyHeldThings() == null || Wearer == null) yield break;
-        Pawn_ApparelTracker trueTracker = Wearer.apparel;
         int itemCounter = 1;
         foreach (Apparel subItem in InnerContainer)
         {
             if (subItem is ThingWithComps twc)
             {
-                // 重定向 Owner
-                SetOwner(twc.holdingOwner, trueTracker);
-
                 int currentIndex = itemCounter++;
 
                 foreach (ThingComp comp in twc.AllComps)
@@ -111,8 +108,6 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
             int ablCounter = 1;
             foreach (Ability abl in subItem.AllAbilitiesForReading ?? Enumerable.Empty<Ability>())
             {
-                abl.pawn = Wearer;
-                abl.verb.caster = Wearer;
                 int curAblIndex = ablCounter++;
                 foreach (Gizmo gizmo in abl.GetGizmos() ?? Enumerable.Empty<Gizmo>())
                 {
@@ -126,11 +121,109 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
     private bool _AbilitiesCachedDirty = true;
 
     private List<Ability> cachedInnerAbilities = new List<Ability>();
+    private readonly HashSet<Apparel> boundItems = new HashSet<Apparel>();
+    private Pawn? boundWearer;
+    private bool proxyContextDirty = true;
+    private bool tickingAbilities;
 
     public override void Notify_InnerContainerContentsChanged()
     {
         base.Notify_InnerContainerContentsChanged();
         _AbilitiesCachedDirty = true;
+        proxyContextDirty = true;
+        if (Scribe.mode == LoadSaveMode.Inactive)
+            RefreshProxyContext();
+    }
+
+    public override void Notify_Equipped(Pawn pawn)
+    {
+        base.Notify_Equipped(pawn);
+        proxyContextDirty = true;
+        RefreshProxyContext();
+    }
+
+    public override void Notify_Unequipped(Pawn pawn)
+    {
+        base.Notify_Unequipped(pawn);
+        proxyContextDirty = true;
+        RefreshProxyContext();
+    }
+
+    public override void PostExposeData()
+    {
+        base.PostExposeData();
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            _AbilitiesCachedDirty = true;
+            proxyContextDirty = true;
+        }
+    }
+
+    private void RefreshProxyContext()
+    {
+        // Do not clear the pawn of an ability while its own CompTick is still executing.
+        if (tickingAbilities || GetDirectlyHeldThings() == null) return;
+        Pawn? wearer = parent.Destroyed ? null : Wearer;
+        if (!proxyContextDirty && wearer == boundWearer) return;
+
+        SetOwner(GetDirectlyHeldThings(), (IThingHolder?)wearer?.apparel ?? this);
+        foreach (Apparel previous in boundItems.ToArray())
+        {
+            if (!previous.Destroyed && ContainedThings.Contains(previous)) continue;
+            // A consumed item may still be executing its verb, and the native UI may
+            // still hold its command. Leave that final cast context intact until GC.
+            if (!previous.Destroyed)
+                BindItem(previous, null);
+            boundItems.Remove(previous);
+        }
+
+        foreach (Apparel item in InnerContainer)
+        {
+            if (item.Destroyed) continue;
+            BindItem(item, wearer);
+            boundItems.Add(item);
+        }
+
+        boundWearer = wearer;
+        proxyContextDirty = false;
+    }
+
+    private static void BindItem(Apparel item, Pawn? wearer)
+    {
+        List<Verb> verbs = new List<Verb>();
+        List<Ability> abilities = item.AllAbilitiesForReading.ToList();
+        foreach (IVerbOwner comp in item.AllComps.OfType<IVerbOwner>())
+        {
+            verbs.AddRange(comp.VerbTracker.AllVerbs);
+        }
+
+        if (item is IVerbOwner itemVerbOwner)
+        {
+            verbs.AddRange(itemVerbOwner.VerbTracker.AllVerbs);
+        }
+
+        foreach (Ability ability in abilities)
+            verbs.AddRange(ability.VerbTracker.AllVerbs);
+
+        if (verbs.Any(verb => verb.caster != null && verb.caster != wearer) ||
+            abilities.Any(ability => ability.pawn != null && ability.pawn != wearer))
+            ProxyGizmoUtility.Invalidate(verbs, abilities);
+
+        foreach (Verb verb in verbs)
+            BindVerb(verb, wearer);
+        foreach (Ability ability in abilities)
+        {
+            ability.pawn = wearer;
+        }
+    }
+
+    private static void BindVerb(Verb verb, Pawn? wearer)
+    {
+        if (verb.caster == wearer) return;
+        // Detach the previous user's cast, but preserve verbs restored unbound during loading.
+        if (verb.caster != null)
+            verb.Reset();
+        verb.caster = wearer;
     }
 
     public List<Ability> AllInnerAbilities
@@ -144,6 +237,7 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
                 {
                     for (int i = 0; i < InnerContainer.Count; i++)
                     {
+                        if (InnerContainer[i].Destroyed) continue;
                         var subAbilities = InnerContainer[i].AllAbilitiesForReading;
                         var abilitiesList = subAbilities?.ToList() ?? new List<Ability>();
                         if (abilitiesList.Count > 0)
@@ -160,16 +254,25 @@ public class Comp_GenericPackForApparel : Comp_ThingHolderContainer<Apparel, Com
 
     public override void CompTick()
     {
+        RefreshProxyContext();
         base.CompTick();
-        // Pawn? wearer = Wearer;
-        // if (wearer == null) return;
+        RefreshProxyContext();
+        if (parent.Destroyed || boundWearer == null) return;
+
         var abilities = AllInnerAbilities;
-        for (int i = 0; i < abilities.Count; i++)
+        tickingAbilities = true;
+        try
         {
-            Ability abl = abilities[i];
-            // abl.pawn = wearer;
-            // abl.verb.caster = wearer;
-            abl.AbilityTick();
+            for (int i = 0; i < abilities.Count; i++)
+            {
+                if (proxyContextDirty || Wearer != boundWearer) break;
+                abilities[i].AbilityTick();
+            }
+        }
+        finally
+        {
+            tickingAbilities = false;
+            RefreshProxyContext();
         }
     }
 }
