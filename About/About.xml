@@ -11,5 +11,5 @@
         <li>Ludeon.RimWorld</li>
     </loadAfter>
     <description>Apparel Container Core</description>
-    <modVersion IgnoreIfNoMatchingField="True">1.0.7</modVersion>
+    <modVersion IgnoreIfNoMatchingField="True">1.1.0</modVersion>
 </ModMetaData>
