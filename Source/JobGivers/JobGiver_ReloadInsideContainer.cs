@@ -19,7 +19,7 @@ public abstract class JobGiver_ReloadInsideContainer<TThing, TProps, TComp> : Th
         return 5.9f;
     }
 
-    public override Job TryGiveJob(Pawn pawn)
+    public override Job? TryGiveJob(Pawn pawn)
     {
         if (!pawn.health.capacities.CapableOf(PawnCapacityDefOf.Manipulation))
         {

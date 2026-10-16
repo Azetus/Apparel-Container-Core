@@ -14,7 +14,7 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
     where T : Thing
     where TP : CompProperties_ThingHolderContainer
 {
-    private ContainerThingOwner<T> _innerContainer;
+    private ContainerThingOwner<T> _innerContainer = null!;
     private ContainerThingOwner<T>? subscribedContainer;
     public TP Props => (TP)this.props;
 
@@ -81,8 +81,8 @@ public abstract class Comp_ThingHolderContainer<T, TP> : Comp_ACC_ThingHolderCon
         ThingPlaceMode mode,
         int count,
         out T resultingThing,
-        Action<T, int> placedAction = null,
-        Predicate<IntVec3> nearPlaceValidator = null)
+        Action<T, int>? placedAction = null,
+        Predicate<IntVec3>? nearPlaceValidator = null)
     {
         bool dropRes = _innerContainer.TryDrop(thing, dropLoc, map, mode, count, out resultingThing, placedAction,
             nearPlaceValidator);

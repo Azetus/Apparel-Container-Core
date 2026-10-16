@@ -7,7 +7,7 @@ namespace ACC_ApparelContainerCore;
 
 public class ApparelContainerCore : Mod
 {
-    public static ApparelContainerCoreSetting settings;
+    public static ApparelContainerCoreSetting settings = null!;
 
     public ApparelContainerCore(ModContentPack contentPack) : base(contentPack)
     {

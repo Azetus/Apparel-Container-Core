@@ -6,7 +6,7 @@ namespace ACC_ApparelContainerCore.DefOfs;
 [DefOf]
 public class ACC_JobDefOfs
 {
-    public static JobDef ACC_Job_PutInGenericPackForApparel;
+    public static JobDef ACC_Job_PutInGenericPackForApparel = null!;
 
     static ACC_JobDefOfs()
     {

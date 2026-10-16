@@ -1,5 +1,6 @@
 ﻿using ACC_ApparelContainerCore.ACC_Utility;
 using ACC_ApparelContainerCore.Comps.Props;
+using System.Diagnostics.CodeAnalysis;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -37,6 +38,7 @@ public static class ACC_SettingsWindowContents
         RefreshApparelCache();
     }
 
+    [MemberNotNull(nameof(allApparelCached))]
     public static void RefreshApparelCache()
     {
         allApparelCached = DefDatabase<ThingDef>.AllDefs
